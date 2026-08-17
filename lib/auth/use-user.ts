@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
-
-const HAY_SUPABASE = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-);
+import { createClient, haySupabaseEnv } from "@/lib/supabase/client";
 
 /** Devuelve el usuario autenticado (o null) y se actualiza con los cambios de sesión. */
 export function useUser() {
@@ -14,7 +10,7 @@ export function useUser() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    if (!HAY_SUPABASE) {
+    if (!haySupabaseEnv()) {
       setCargando(false);
       return;
     }

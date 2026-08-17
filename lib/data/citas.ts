@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { haySupabaseEnv } from "@/lib/supabase/config";
 
 export type Servicio = {
   id: string;
@@ -25,9 +26,7 @@ export type CitaConServicio = {
 };
 
 function haySupabase() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
+  return haySupabaseEnv();
 }
 
 export async function getServicios(): Promise<Servicio[]> {

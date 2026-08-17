@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { haySupabaseEnv } from "@/lib/supabase/config";
 import type {
   Categoria,
   FotoProducto,
@@ -16,9 +17,7 @@ export const CATEGORIAS_CONOCIDAS: Record<string, string> = {
 };
 
 function haySupabase() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
+  return haySupabaseEnv();
 }
 
 export async function getCategorias(): Promise<Categoria[]> {
