@@ -75,3 +75,25 @@ Capas: **C** = Cliente (UX) · **SA** = Server Action · **RLS/DB** = Postgres (
 - El middleware Edge se retiró (fallaba en Vercel); la protección vive en las páginas + RLS.
 - `emailRedirectTo` usa el origin actual → funciona en local y producción.
 - Los formularios comparten esquema Zod entre cliente y servidor donde aplica.
+
+---
+
+## Auditoría — hallazgos y cierre (migración `0007_seguridad.sql`)
+
+Al auditar RLS + lógica se encontraron y cerraron **3 huecos reales**:
+
+| # | Hueco | Riesgo | Cierre |
+|---|---|---|---|
+| 1 | Un usuario podía **cambiar su propio `rol` a admin** por API (update de `perfiles` sin restricción de columna) | **Alto** (escalada de privilegios) | Trigger `proteger_rol`: con sesión, solo un admin cambia `rol`; sin sesión (SQL editor) se permite la promoción manual |
+| 2 | Un usuario podía **insertar un pedido directo** (p. ej. "pagado") evitando `crear_pedido` | Medio (integridad) | Se quitan las políticas de insert de `pedidos`/`items_pedido`; solo nacen dentro de `crear_pedido` |
+| 3 | Un cliente podía **auto-confirmar su cita** (update de estado) | Medio (integridad) | Trigger `proteger_estado_cita`: el cliente solo puede cancelar, no confirmar/completar |
+
+> ⚠️ **Aplicar `supabase/migrations/0007_seguridad.sql`** en Supabase para que estos cierres queden activos.
+
+## Residuales de bajo riesgo (opcionales)
+- **Citas por API**: un usuario podría insertar una cita `pendiente` con un horario raro saltándose la validación de la Server Action (la UI solo ofrece horarios válidos, `unique(inicia_en)` evita choques y Érika revisa toda cita antes de confirmar). Cierre total: mover la creación a una función `security definer`.
+- **`requiere_consulta`** (confección a medida): hoy se puede agendar directo; podría exigir consulta previa.
+- **Pieza única**: el tope de 1 se apoya en `stock = 1`; `crear_pedido` podría además forzar cantidad máx. 1.
+- **Compra de producto no publicado**: `crear_pedido` no verifica `publicado` (se compraría un borrador a su precio real).
+
+Ninguno expone datos ni permite fraude de precio/stock; se pueden endurecer si se desea.
