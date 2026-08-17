@@ -112,10 +112,26 @@ function LoginForm({ next, router }: { next: string; router: Router }) {
       return;
     }
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword(values);
+    const { data, error } = await supabase.auth.signInWithPassword(values);
     if (error) {
       setErrorGeneral("Correo o contraseña incorrectos.");
       return;
+    }
+    // Bloquear cuentas deshabilitadas.
+    const uid = data.user?.id;
+    if (uid) {
+      const { data: perfil } = await supabase
+        .from("perfiles")
+        .select("deshabilitado")
+        .eq("id", uid)
+        .maybeSingle();
+      if (perfil?.deshabilitado) {
+        await supabase.auth.signOut();
+        setErrorGeneral(
+          "Tu cuenta está deshabilitada. Escríbenos si crees que es un error.",
+        );
+        return;
+      }
     }
     router.push(next);
     router.refresh();

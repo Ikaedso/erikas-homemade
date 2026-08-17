@@ -8,6 +8,7 @@ export type UsuarioAdmin = {
   nombre: string;
   whatsapp: string | null;
   rol: RolUsuario;
+  deshabilitado: boolean;
   creado_en: string;
   email: string | null;
   confirmado: boolean | null;
@@ -18,6 +19,7 @@ type PerfilRow = {
   nombre: string;
   whatsapp: string | null;
   rol: RolUsuario;
+  deshabilitado: boolean;
   creado_en: string;
 };
 
@@ -33,7 +35,7 @@ export async function getUsuarios(): Promise<{
   const supabase = await createClient();
   const { data } = await supabase
     .from("perfiles")
-    .select("id, nombre, whatsapp, rol, creado_en")
+    .select("id, nombre, whatsapp, rol, deshabilitado, creado_en")
     .order("creado_en", { ascending: false });
   const perfiles = (data as PerfilRow[]) ?? [];
 

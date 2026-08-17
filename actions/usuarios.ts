@@ -27,34 +27,56 @@ export async function cambiarRol(userId: string, rol: RolUsuario): Promise<Res> 
   return { ok: true };
 }
 
-/** Elimina la cuenta por completo (auth + perfil en cascada). Requiere SERVICE ROLE. */
-export async function eliminarUsuario(userId: string): Promise<Res> {
+/** Deshabilita / habilita una cuenta. La cuenta nunca se elimina. */
+export async function setDeshabilitado(userId: string, deshabilitado: boolean): Promise<Res> {
   if (!(await esAdmin())) return { ok: false, error: "No autorizado." };
   if ((await miId()) === userId) {
-    return { ok: false, error: "No puedes eliminar tu propia cuenta." };
+    return { ok: false, error: "No puedes deshabilitar tu propia cuenta." };
   }
-  if (!hayServiceRole()) {
-    return {
-      ok: false,
-      error: "Falta configurar SUPABASE_SERVICE_ROLE_KEY para poder eliminar usuarios.",
-    };
+  const supabase = await createClient();
+  const { error } = await supabase.from("perfiles").update({ deshabilitado }).eq("id", userId);
+  if (error) return { ok: false, error: "No se pudo actualizar la cuenta." };
+  revalidatePath("/admin/usuarios");
+  return { ok: true };
+}
+
+/** Edita el nombre (siempre) y el correo (si hay service role) de un usuario. */
+export async function actualizarUsuario(
+  userId: string,
+  datos: { nombre: string; email?: string },
+): Promise<Res> {
+  if (!(await esAdmin())) return { ok: false, error: "No autorizado." };
+
+  const nombre = datos.nombre.trim();
+  if (nombre.length < 2 || nombre.length > 60) {
+    return { ok: false, error: "El nombre debe tener entre 2 y 60 caracteres." };
   }
 
-  const admin = createAdminClient();
+  const supabase = await createClient();
+  const { error } = await supabase.from("perfiles").update({ nombre }).eq("id", userId);
+  if (error) return { ok: false, error: "No se pudo guardar el nombre." };
 
-  // Las FK de pedidos/citas apuntan a `perfiles` sin ON DELETE CASCADE, así que
-  // primero borramos los datos dependientes del cliente (con service role, sin
-  // RLS). items_pedido cae en cascada al borrar sus pedidos.
-  const { error: eCitas } = await admin.from("citas").delete().eq("cliente_id", userId);
-  if (eCitas) return { ok: false, error: `No se pudieron borrar las citas: ${eCitas.message}` };
-
-  const { error: ePedidos } = await admin.from("pedidos").delete().eq("cliente_id", userId);
-  if (ePedidos) {
-    return { ok: false, error: `No se pudieron borrar los pedidos: ${ePedidos.message}` };
+  // El correo vive en auth.users → requiere service role.
+  const email = datos.email?.trim().toLowerCase();
+  if (email) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return { ok: false, error: "El correo no es válido." };
+    }
+    if (!hayServiceRole()) {
+      return {
+        ok: false,
+        error: "El nombre se guardó, pero para cambiar el correo falta SUPABASE_SERVICE_ROLE_KEY.",
+      };
+    }
+    const admin = createAdminClient();
+    const { error: eMail } = await admin.auth.admin.updateUserById(userId, {
+      email,
+      email_confirm: true,
+    });
+    if (eMail) {
+      return { ok: false, error: `No se pudo cambiar el correo: ${eMail.message}` };
+    }
   }
-
-  const { error } = await admin.auth.admin.deleteUser(userId);
-  if (error) return { ok: false, error: `No se pudo eliminar el usuario: ${error.message}` };
 
   revalidatePath("/admin/usuarios");
   return { ok: true };

@@ -22,7 +22,18 @@ export function useUser() {
         setEsAdmin(false);
         return;
       }
-      const { data } = await supabase.from("perfiles").select("rol").eq("id", u.id).maybeSingle();
+      const { data } = await supabase
+        .from("perfiles")
+        .select("rol, deshabilitado")
+        .eq("id", u.id)
+        .maybeSingle();
+      // Si la cuenta fue deshabilitada, cerramos la sesión.
+      if (data?.deshabilitado) {
+        await supabase.auth.signOut();
+        setUser(null);
+        setEsAdmin(false);
+        return;
+      }
       setEsAdmin(data?.rol === "admin");
     }
 

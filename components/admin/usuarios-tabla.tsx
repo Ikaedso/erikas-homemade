@@ -2,11 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Shield, ShieldOff, Trash2 } from "lucide-react";
+import { Ban, Check, CircleCheck, Pencil, Search, Shield, ShieldOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { formatFecha } from "@/lib/format";
-import { cambiarRol, eliminarUsuario } from "@/actions/usuarios";
+import { actualizarUsuario, cambiarRol, setDeshabilitado } from "@/actions/usuarios";
 import type { RolUsuario, UsuarioAdmin } from "@/lib/data/usuarios";
 
 type Filtro = "todos" | RolUsuario;
@@ -24,6 +25,9 @@ export function UsuariosTabla({
   const [q, setQ] = useState("");
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [pendiente, setPendiente] = useState<string | null>(null);
+  const [editando, setEditando] = useState<string | null>(null);
+  const [fNombre, setFNombre] = useState("");
+  const [fEmail, setFEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
@@ -41,9 +45,7 @@ export function UsuariosTabla({
     return usuarios.filter((u) => {
       if (filtro !== "todos" && u.rol !== filtro) return false;
       if (!term) return true;
-      return (
-        u.nombre.toLowerCase().includes(term) || (u.email ?? "").toLowerCase().includes(term)
-      );
+      return u.nombre.toLowerCase().includes(term) || (u.email ?? "").toLowerCase().includes(term);
     });
   }, [usuarios, q, filtro]);
 
@@ -53,21 +55,19 @@ export function UsuariosTabla({
     startTransition(async () => {
       const r = await fn();
       if (!r.ok && r.error) setError(r.error);
-      else router.refresh();
+      else {
+        setEditando(null);
+        router.refresh();
+      }
       setPendiente(null);
     });
   }
 
-  function alternarRol(u: UsuarioAdmin) {
-    ejecutar(u.id, () => cambiarRol(u.id, u.rol === "admin" ? "cliente" : "admin"));
-  }
-
-  function borrar(u: UsuarioAdmin) {
-    const quien = u.email ?? u.nombre;
-    if (!window.confirm(`¿Eliminar la cuenta de ${quien}? Esta acción no se puede deshacer.`)) {
-      return;
-    }
-    ejecutar(u.id, () => eliminarUsuario(u.id));
+  function abrirEdicion(u: UsuarioAdmin) {
+    setError(null);
+    setEditando(u.id);
+    setFNombre(u.nombre);
+    setFEmail(u.email ?? "");
   }
 
   const chips: { key: Filtro; label: string; count: number }[] = [
@@ -80,9 +80,9 @@ export function UsuariosTabla({
     <div>
       {!conServiceRole && (
         <div className="mb-4 rounded-[10px] border border-dorado/40 bg-[#FDFBF6] px-4 py-3 text-[12.5px] text-tinta/75">
-          Para ver los correos y <strong>eliminar</strong> cuentas, configura la variable{" "}
+          Para ver y editar los correos, configura{" "}
           <code className="rounded bg-lavanda px-1 py-0.5 text-morado">SUPABASE_SERVICE_ROLE_KEY</code>{" "}
-          en Vercel. Mientras tanto puedes cambiar roles.
+          en Vercel. Los roles, el nombre y deshabilitar cuentas ya funcionan.
         </div>
       )}
 
@@ -132,74 +132,148 @@ export function UsuariosTabla({
         {visibles.map((u) => {
           const soyYo = u.id === miId;
           const cargando = pendiente === u.id;
+          const enEdicion = editando === u.id;
+
           return (
             <li
               key={u.id}
               className={cn(
-                "flex flex-col gap-3 rounded-[12px] border border-tinta/[0.09] bg-blanco p-4 sm:flex-row sm:items-center sm:justify-between",
+                "rounded-[12px] border border-tinta/[0.09] bg-blanco p-4",
                 cargando && "opacity-60",
+                u.deshabilitado && "bg-tinta/[0.02]",
               )}
             >
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-display text-[15.5px] text-moradoHondo">{u.nombre}</p>
-                  <Badge variant={u.rol === "admin" ? "piezaUnica" : "neutro"}>
-                    {u.rol === "admin" ? "Admin" : "Cliente"}
-                  </Badge>
-                  {soyYo && <span className="text-[11px] text-tinta/45">(tú)</span>}
-                  {u.confirmado === false && (
-                    <span className="rounded-[4px] bg-[#FBEAEF] px-1.5 py-0.5 text-[10px] font-medium text-[#B23A5B]">
-                      Sin confirmar
-                    </span>
-                  )}
+              {enEdicion ? (
+                <div className="space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1 block text-[12px] font-medium text-tinta/70">Nombre</span>
+                      <Input value={fNombre} onChange={(e) => setFNombre(e.target.value)} />
+                    </label>
+                    <label className="block">
+                      <span className="mb-1 block text-[12px] font-medium text-tinta/70">Correo</span>
+                      <Input
+                        type="email"
+                        value={fEmail}
+                        onChange={(e) => setFEmail(e.target.value)}
+                        disabled={!conServiceRole}
+                        placeholder={conServiceRole ? undefined : "Requiere service role"}
+                      />
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={cargando}
+                      onClick={() =>
+                        ejecutar(u.id, () =>
+                          actualizarUsuario(u.id, {
+                            nombre: fNombre,
+                            email: conServiceRole && fEmail !== (u.email ?? "") ? fEmail : undefined,
+                          }),
+                        )
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-pill bg-morado px-4 py-2 text-[13px] font-medium text-blanco transition-colors hover:bg-moradoHondo disabled:opacity-50"
+                    >
+                      <Check className="size-3.5" /> Guardar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditando(null)}
+                      className="rounded-pill border border-tinta/15 px-4 py-2 text-[13px] font-medium text-tinta transition-colors hover:bg-lavanda/40"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
                 </div>
-                <p className="mt-0.5 truncate text-[12.5px] text-tinta/60">
-                  {u.email ?? "correo oculto"}
-                  {u.whatsapp ? ` · ${u.whatsapp}` : ""}
-                </p>
-                <p className="mt-0.5 text-[11px] text-tinta/40">Registro: {formatFecha(u.creado_en)}</p>
-              </div>
+              ) : (
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-display text-[15.5px] text-moradoHondo">{u.nombre}</p>
+                      <Badge variant={u.rol === "admin" ? "piezaUnica" : "neutro"}>
+                        {u.rol === "admin" ? "Admin" : "Cliente"}
+                      </Badge>
+                      {u.deshabilitado && (
+                        <span className="rounded-[4px] bg-[#FBEAEF] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.05em] text-[#B23A5B]">
+                          Deshabilitado
+                        </span>
+                      )}
+                      {soyYo && <span className="text-[11px] text-tinta/45">(tú)</span>}
+                    </div>
+                    <p className="mt-0.5 truncate text-[12.5px] text-tinta/60">
+                      {u.email ?? "correo oculto"}
+                      {u.whatsapp ? ` · ${u.whatsapp}` : ""}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-tinta/40">
+                      Registro: {formatFecha(u.creado_en)}
+                    </p>
+                  </div>
 
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => alternarRol(u)}
-                  disabled={cargando || (soyYo && u.rol === "admin")}
-                  title={soyYo && u.rol === "admin" ? "No puedes quitarte el admin" : undefined}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:opacity-40",
-                    u.rol === "admin"
-                      ? "border-tinta/[0.16] text-tinta/75 hover:bg-lavanda/60"
-                      : "border-morado bg-morado text-blanco hover:bg-moradoHondo",
-                  )}
-                >
-                  {u.rol === "admin" ? (
-                    <>
-                      <ShieldOff className="size-3.5" /> Quitar admin
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="size-3.5" /> Hacer admin
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => borrar(u)}
-                  disabled={cargando || soyYo || !conServiceRole}
-                  title={
-                    soyYo
-                      ? "No puedes eliminar tu cuenta"
-                      : !conServiceRole
-                        ? "Requiere SUPABASE_SERVICE_ROLE_KEY"
-                        : "Eliminar cuenta"
-                  }
-                  aria-label="Eliminar cuenta"
-                  className="grid size-9 place-items-center rounded-[8px] border border-tinta/[0.12] text-[#B23A5B] transition-colors hover:bg-[#FBEAEF] disabled:opacity-30 disabled:hover:bg-transparent"
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              </div>
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        ejecutar(u.id, () =>
+                          cambiarRol(u.id, u.rol === "admin" ? "cliente" : "admin"),
+                        )
+                      }
+                      disabled={cargando || (soyYo && u.rol === "admin")}
+                      title={soyYo && u.rol === "admin" ? "No puedes quitarte el admin" : undefined}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:opacity-40",
+                        u.rol === "admin"
+                          ? "border-tinta/[0.16] text-tinta/75 hover:bg-lavanda/60"
+                          : "border-morado bg-morado text-blanco hover:bg-moradoHondo",
+                      )}
+                    >
+                      {u.rol === "admin" ? (
+                        <>
+                          <ShieldOff className="size-3.5" /> Quitar admin
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="size-3.5" /> Hacer admin
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => abrirEdicion(u)}
+                      disabled={cargando}
+                      aria-label="Editar"
+                      title="Editar nombre y correo"
+                      className="grid size-9 place-items-center rounded-[8px] border border-tinta/[0.14] text-morado transition-colors hover:bg-lavanda disabled:opacity-40"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => ejecutar(u.id, () => setDeshabilitado(u.id, !u.deshabilitado))}
+                      disabled={cargando || soyYo}
+                      title={soyYo ? "No puedes deshabilitar tu cuenta" : undefined}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[12.5px] font-medium transition-colors disabled:opacity-40",
+                        u.deshabilitado
+                          ? "border-[#2F855A]/40 text-[#2F855A] hover:bg-[#2F855A]/10"
+                          : "border-[#B23A5B]/30 text-[#B23A5B] hover:bg-[#FBEAEF]",
+                      )}
+                    >
+                      {u.deshabilitado ? (
+                        <>
+                          <CircleCheck className="size-3.5" /> Habilitar
+                        </>
+                      ) : (
+                        <>
+                          <Ban className="size-3.5" /> Deshabilitar
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
             </li>
           );
         })}
