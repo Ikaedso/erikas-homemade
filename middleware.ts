@@ -21,14 +21,18 @@ function tieneSesion(request: NextRequest): boolean {
 }
 
 export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
-  const requiereSesion = PROTEGIDAS.some((p) => path === p || path.startsWith(`${p}/`));
+  try {
+    const path = request.nextUrl.pathname;
+    const requiereSesion = PROTEGIDAS.some((p) => path === p || path.startsWith(`${p}/`));
 
-  if (requiereSesion && !tieneSesion(request)) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/entrar";
-    url.searchParams.set("next", path);
-    return NextResponse.redirect(url);
+    if (requiereSesion && !tieneSesion(request)) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/entrar";
+      url.searchParams.set("next", path);
+      return NextResponse.redirect(url);
+    }
+  } catch {
+    // fail-open: el middleware nunca debe romper la request.
   }
 
   return NextResponse.next();
