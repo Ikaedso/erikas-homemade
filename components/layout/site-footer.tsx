@@ -43,9 +43,9 @@ export function SiteFooter() {
       {/* Footer morado profundo */}
       <div className="bg-moradoHondo text-blanco">
         <div className="mx-auto max-w-[1440px] px-4 py-12 lg:px-14">
-          <div className="grid gap-10 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4 lg:gap-8">
+          <div className="lg:grid lg:grid-cols-4 lg:gap-8">
             {/* Marca */}
-            <div className="flex flex-col items-center sm:col-span-2 sm:items-start lg:col-span-1">
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
               <p className="font-display text-[20px]">Erika&apos;s Homemade</p>
               <p className="mt-2 max-w-[34ch] text-[13px] leading-relaxed text-blanco/70">
                 Cosido a mano, hecho a tu medida. Ropa y bisutería artesanal, y servicios de costura
@@ -69,29 +69,33 @@ export function SiteFooter() {
               </div>
             </div>
 
-            <div>
-              <p className="eyebrow text-doradoClaro">Menú</p>
-              <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
-                {MENU_INFERIOR.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className="transition-colors hover:text-blanco">
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            {/* Pirámide (móvil): Menú | Conoce el taller lado a lado; en escritorio, celdas propias */}
+            <div className="mt-10 grid grid-cols-2 gap-8 lg:mt-0 lg:contents">
+              <div className="text-center lg:text-left">
+                <p className="eyebrow text-doradoClaro">Menú</p>
+                <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
+                  {MENU_INFERIOR.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href} className="transition-colors hover:text-blanco">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="text-center lg:text-left">
+                <p className="eyebrow text-doradoClaro">Conoce el taller</p>
+                <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
+                  <li>Lun a sáb · 9:00–17:00</li>
+                  <li>Costura con cita previa</li>
+                  <li>Retiro en el taller o delivery</li>
+                </ul>
+              </div>
             </div>
 
-            <div>
-              <p className="eyebrow text-doradoClaro">Conoce el taller</p>
-              <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
-                <li>Lun a sáb · 9:00–17:00</li>
-                <li>Costura con cita previa</li>
-                <li>Retiro en el taller o delivery</li>
-              </ul>
-            </div>
-
-            <div>
+            {/* Base de la pirámide (móvil): Comprar centrado debajo */}
+            <div className="mt-10 text-center lg:mt-0 lg:text-left">
               <p className="eyebrow text-doradoClaro">Comprar</p>
               <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
                 <li>
