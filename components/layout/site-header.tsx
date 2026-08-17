@@ -153,9 +153,20 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Móvil: panel de navegación desplegable */}
-      {open && (
-        <div className="border-t border-tinta/[0.08] lg:hidden">
+      {/* Móvil: panel de navegación desplegable (animación suave abrir/cerrar) */}
+      <div
+        aria-hidden={!open}
+        className={cn(
+          "grid overflow-hidden transition-all duration-300 ease-out lg:hidden",
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+        )}
+      >
+        <div
+          className={cn(
+            "min-h-0 overflow-hidden border-t border-tinta/[0.08]",
+            !open && "pointer-events-none",
+          )}
+        >
           <nav className="mx-auto flex max-w-[1440px] flex-col px-4 py-2">
             {NAV_ITEMS.map((item) => (
               <Link
@@ -220,7 +231,7 @@ export function SiteHeader() {
             </div>
           </nav>
         </div>
-      )}
+      </div>
     </header>
   );
 }

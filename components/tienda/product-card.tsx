@@ -20,7 +20,10 @@ export function ProductCard({
   const agotado = estado.key === "agotado";
 
   return (
-    <Link href={`/producto/${producto.slug}`} className="group block">
+    <Link
+      href={`/producto/${producto.slug}`}
+      className="group block transition-transform duration-300 hover:-translate-y-1"
+    >
       <div
         className={cn(
           "relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-[10px] border border-tinta/[0.08] bg-gradient-to-br from-lavanda to-nieve",

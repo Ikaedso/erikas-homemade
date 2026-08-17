@@ -62,20 +62,29 @@ export function AuthForm({ modo }: { modo: "login" | "registro" }) {
   return (
     <div className="mx-auto flex w-full max-w-[420px] flex-col items-center px-4 py-14">
       <Image src="/logo.png" alt="Erika's Homemade" width={56} height={56} className="h-12 w-12" />
-      <h1 className="mt-4 font-display text-[26px] text-moradoHondo">
-        {modo === "login" ? "Hola de nuevo" : "Crea tu cuenta"}
-      </h1>
-      <p className="mt-1 text-[13px] text-tinta/60">
-        {modo === "login"
-          ? "Entra para comprar y agendar."
-          : "El registro es rápido y obligatorio para comprar."}
-      </p>
+
+      <div
+        key={`${modo}-head`}
+        className="flex w-full flex-col items-center text-center duration-300 animate-in fade-in slide-in-from-bottom-1"
+      >
+        <h1 className="mt-4 font-display text-[26px] text-moradoHondo">
+          {modo === "login" ? "Hola de nuevo" : "Crea tu cuenta"}
+        </h1>
+        <p className="mt-1 text-[13px] text-tinta/60">
+          {modo === "login"
+            ? "Entra para comprar y agendar."
+            : "El registro es rápido y obligatorio para comprar."}
+        </p>
+      </div>
 
       <div className="mt-6 w-full">
         <Tabs modo={modo} next={next} />
       </div>
 
-      <div className="mt-6 w-full">
+      <div
+        key={`${modo}-form`}
+        className="mt-6 w-full duration-300 animate-in fade-in slide-in-from-bottom-2"
+      >
         {modo === "login" ? (
           <LoginForm next={next} router={router} />
         ) : (
@@ -115,7 +124,7 @@ function LoginForm({ next, router }: { next: string; router: Router }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {errorGeneral && (
-        <p className="rounded-[8px] bg-[#B23A5B]/10 px-3 py-2 text-[13px] text-[#B23A5B]">
+        <p className="rounded-[8px] bg-[#B23A5B]/10 px-3 py-2 text-[13px] text-[#B23A5B] duration-200 animate-in fade-in slide-in-from-top-1">
           {errorGeneral}
         </p>
       )}
@@ -182,7 +191,7 @@ function RegistroForm({ next, router }: { next: string; router: Router }) {
 
   if (revisaCorreo) {
     return (
-      <div className="rounded-[12px] border border-dashed border-dorado/50 bg-nieve p-6 text-center">
+      <div className="rounded-[12px] border border-dashed border-dorado/50 bg-nieve p-6 text-center duration-300 animate-in fade-in zoom-in-95">
         <h2 className="font-display text-[18px] text-moradoHondo">Revisa tu correo</h2>
         <p className="mt-2 text-[13px] text-tinta/65">
           Te enviamos un enlace para confirmar tu cuenta. Ábrelo y luego inicia sesión.
@@ -194,7 +203,7 @@ function RegistroForm({ next, router }: { next: string; router: Router }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {errorGeneral && (
-        <p className="rounded-[8px] bg-[#B23A5B]/10 px-3 py-2 text-[13px] text-[#B23A5B]">
+        <p className="rounded-[8px] bg-[#B23A5B]/10 px-3 py-2 text-[13px] text-[#B23A5B] duration-200 animate-in fade-in slide-in-from-top-1">
           {errorGeneral}
         </p>
       )}

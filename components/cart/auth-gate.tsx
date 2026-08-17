@@ -6,7 +6,7 @@ import { Stitch } from "@/components/brand/stitch";
 export function AuthGate({ next = "/pagar" }: { next?: string }) {
   const q = `?next=${encodeURIComponent(next)}`;
   return (
-    <div className="rounded-[14px] border border-tinta/10 bg-blanco p-6 text-center shadow-modal">
+    <div className="rounded-[14px] border border-tinta/10 bg-blanco p-6 text-center shadow-modal duration-300 animate-in fade-in zoom-in-95">
       <div className="mx-auto grid size-12 place-items-center rounded-full border border-dashed border-dorado text-morado">
         <Lock className="size-5" />
       </div>

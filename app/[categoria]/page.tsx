@@ -78,10 +78,7 @@ export default async function CategoriaPage({
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-10 lg:px-14 lg:py-14">
       {/* Cabecera */}
-      <nav className="text-[12px] text-tinta/50">
-        Inicio / Colecciones / <span className="text-tinta/70">{nombre}</span>
-      </nav>
-      <div className="mt-4 flex flex-col items-center text-center">
+      <div className="flex flex-col items-center text-center">
         <h1 className="font-display text-[30px] text-moradoHondo lg:text-[44px]">{nombre}</h1>
         <Stitch className="mt-3 w-12 border-dorado" />
         <p className="mt-2 text-[13px] text-tinta/60">

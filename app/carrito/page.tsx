@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Stitch } from "@/components/brand/stitch";
 import { AuthGate } from "@/components/cart/auth-gate";
@@ -17,6 +18,16 @@ export default function CarritoPage() {
   const { user } = useUser();
   const router = useRouter();
   const [mostrarGate, setMostrarGate] = useState(false);
+  const [saliendo, setSaliendo] = useState<string[]>([]);
+
+  // Anima la salida antes de quitar del carrito.
+  function quitar(key: string) {
+    setSaliendo((s) => [...s, key]);
+    setTimeout(() => {
+      remove(key);
+      setSaliendo((s) => s.filter((k) => k !== key));
+    }, 280);
+  }
 
   function irAlPago() {
     if (user) {
@@ -49,8 +60,15 @@ export default function CarritoPage() {
         <div>
           {items.map((i, idx) => {
             const key = itemKey(i);
+            const fuera = saliendo.includes(key);
             return (
-              <div key={key}>
+              <div
+                key={key}
+                className={cn(
+                  "overflow-hidden transition-all duration-300 ease-out",
+                  fuera ? "max-h-0 -translate-x-3 opacity-0" : "max-h-[260px] opacity-100",
+                )}
+              >
                 {idx > 0 && <Stitch className="my-4 border-dorado/40" />}
                 <div className="flex gap-4">
                   <Link
@@ -85,7 +103,7 @@ export default function CarritoPage() {
                       <button
                         type="button"
                         aria-label="Quitar"
-                        onClick={() => remove(key)}
+                        onClick={() => quitar(key)}
                         className="text-tinta/40 transition-colors hover:text-[#B23A5B]"
                       >
                         <Trash2 className="size-4" />

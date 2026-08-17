@@ -43,25 +43,26 @@ export function SiteFooter() {
       {/* Footer morado profundo */}
       <div className="bg-moradoHondo text-blanco">
         <div className="mx-auto max-w-[1440px] px-4 py-12 lg:px-14">
-          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-            <div className="col-span-2 lg:col-span-1">
+          <div className="grid gap-10 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4 lg:gap-8">
+            {/* Marca */}
+            <div className="flex flex-col items-center sm:col-span-2 sm:items-start lg:col-span-1">
               <p className="font-display text-[20px]">Erika&apos;s Homemade</p>
-              <p className="mt-2 max-w-[30ch] text-[13px] text-blanco/70">
+              <p className="mt-2 max-w-[34ch] text-[13px] leading-relaxed text-blanco/70">
                 Cosido a mano, hecho a tu medida. Ropa y bisutería artesanal, y servicios de costura
                 con cita.
               </p>
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 flex gap-2.5">
                 <a
                   href="https://instagram.com"
                   aria-label="Instagram"
-                  className="grid size-8 place-items-center rounded-full border border-blanco/30 transition-colors hover:bg-blanco/10"
+                  className="grid size-9 place-items-center rounded-full border border-blanco/30 transition-colors hover:border-blanco/60 hover:bg-blanco/10"
                 >
                   <Instagram className="size-4" />
                 </a>
                 <a
                   href="https://facebook.com"
                   aria-label="Facebook"
-                  className="grid size-8 place-items-center rounded-full border border-blanco/30 transition-colors hover:bg-blanco/10"
+                  className="grid size-9 place-items-center rounded-full border border-blanco/30 transition-colors hover:border-blanco/60 hover:bg-blanco/10"
                 >
                   <Facebook className="size-4" />
                 </a>
@@ -70,7 +71,7 @@ export function SiteFooter() {
 
             <div>
               <p className="eyebrow text-doradoClaro">Menú</p>
-              <ul className="mt-3 space-y-2 text-[13px] text-blanco/80">
+              <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
                 {MENU_INFERIOR.map((item) => (
                   <li key={item.href}>
                     <Link href={item.href} className="transition-colors hover:text-blanco">
@@ -83,7 +84,7 @@ export function SiteFooter() {
 
             <div>
               <p className="eyebrow text-doradoClaro">Conoce el taller</p>
-              <ul className="mt-3 space-y-2 text-[13px] text-blanco/80">
+              <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
                 <li>Lun a sáb · 9:00–17:00</li>
                 <li>Costura con cita previa</li>
                 <li>Retiro en el taller o delivery</li>
@@ -92,7 +93,7 @@ export function SiteFooter() {
 
             <div>
               <p className="eyebrow text-doradoClaro">Comprar</p>
-              <ul className="mt-3 space-y-2 text-[13px] text-blanco/80">
+              <ul className="mt-3 space-y-2.5 text-[13px] text-blanco/80">
                 <li>
                   <Link href="/mujer" className="transition-colors hover:text-blanco">
                     Mujer
@@ -117,7 +118,7 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <Stitch className="my-6 border-dorado/50" />
+          <Stitch className="my-8 border-dorado/50 sm:my-6" />
           <p className="text-center text-[12px] text-blanco/60">
             © {new Date().getFullYear()} Erika&apos;s Homemade · Hecho a mano en Colombia
           </p>
