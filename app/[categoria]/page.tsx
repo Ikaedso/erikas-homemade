@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Stitch } from "@/components/brand/stitch";
+import { Reveal } from "@/components/anim/reveal";
 import { ProductCard } from "@/components/tienda/product-card";
 import {
   FilterSidebar,
@@ -111,19 +112,20 @@ export default async function CategoriaPage({
         <div>
           {productos.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6">
-              {productos.map((p) => {
+              {productos.map((p, i) => {
                 const foto = fotos.get(p.id);
                 return (
-                  <ProductCard
-                    key={p.id}
-                    producto={p}
-                    fotoUrl={foto ? urlFotoProducto(foto) : undefined}
-                    etiqueta={
-                      p.subcategoria_id
-                        ? `${nombre} · ${nombrePorSubId.get(p.subcategoria_id) ?? ""}`
-                        : nombre
-                    }
-                  />
+                  <Reveal key={p.id} delay={Math.min(i, 8) * 55}>
+                    <ProductCard
+                      producto={p}
+                      fotoUrl={foto ? urlFotoProducto(foto) : undefined}
+                      etiqueta={
+                        p.subcategoria_id
+                          ? `${nombre} · ${nombrePorSubId.get(p.subcategoria_id) ?? ""}`
+                          : nombre
+                      }
+                    />
+                  </Reveal>
                 );
               })}
             </div>

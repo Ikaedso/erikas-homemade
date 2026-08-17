@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Stitch } from "@/components/brand/stitch";
+import { Reveal } from "@/components/anim/reveal";
 import { CategoryCard, type MotivoCategoria } from "@/components/tienda/category-card";
 import { ProductCard } from "@/components/tienda/product-card";
 import {
@@ -78,18 +79,19 @@ export default async function HomePage({
         </div>
 
         <div className="mt-8 grid grid-cols-3 gap-3 lg:gap-6">
-          {CATEGORIAS.map((cat) => {
+          {CATEGORIAS.map((cat, i) => {
             const catId = idPorSlug.get(cat.slug);
             const portada = catId ? portadas.get(catId) : undefined;
             return (
-              <CategoryCard
-                key={cat.href}
-                nombre={cat.nombre}
-                href={cat.href}
-                nota={cat.nota}
-                motivo={cat.motivo}
-                imagen={portada ? urlFotoProducto(portada) : undefined}
-              />
+              <Reveal key={cat.href} delay={i * 80}>
+                <CategoryCard
+                  nombre={cat.nombre}
+                  href={cat.href}
+                  nota={cat.nota}
+                  motivo={cat.motivo}
+                  imagen={portada ? urlFotoProducto(portada) : undefined}
+                />
+              </Reveal>
             );
           })}
         </div>
@@ -105,14 +107,12 @@ export default async function HomePage({
             </Link>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
-            {destacados.map((p) => {
+            {destacados.map((p, i) => {
               const foto = fotos.get(p.id);
               return (
-                <ProductCard
-                  key={p.id}
-                  producto={p}
-                  fotoUrl={foto ? urlFotoProducto(foto) : undefined}
-                />
+                <Reveal key={p.id} delay={Math.min(i, 8) * 60}>
+                  <ProductCard producto={p} fotoUrl={foto ? urlFotoProducto(foto) : undefined} />
+                </Reveal>
               );
             })}
           </div>

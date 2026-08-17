@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/anim/reveal";
 import { formatCOP } from "@/lib/format";
 import { getServiciosPagina } from "@/lib/data/citas";
 
@@ -50,9 +51,10 @@ export default async function ServiciosPage({
       ) : (
         <>
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:gap-5">
-            {servicios.map((s) => (
-              <article
+            {servicios.map((s, i) => (
+              <Reveal
                 key={s.id}
+                delay={Math.min(i, 8) * 55}
                 className={cn(
                   "flex flex-col rounded-[14px] border p-5 transition-shadow hover:shadow-[0_4px_18px_rgba(46,36,56,0.06)]",
                   s.requiere_consulta
@@ -90,7 +92,7 @@ export default async function ServiciosPage({
                     Agendar
                   </Link>
                 </div>
-              </article>
+              </Reveal>
             ))}
           </div>
 
