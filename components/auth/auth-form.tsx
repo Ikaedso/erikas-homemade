@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Stitch } from "@/components/brand/stitch";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, haySupabaseEnv } from "@/lib/supabase/client";
 import {
   loginSchema,
   registroSchema,
@@ -98,6 +98,10 @@ function LoginForm({ next, router }: { next: string; router: Router }) {
 
   async function onSubmit(values: LoginInput) {
     setErrorGeneral(null);
+    if (!haySupabaseEnv()) {
+      setErrorGeneral("El servicio no está disponible ahora mismo. Intenta más tarde.");
+      return;
+    }
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword(values);
     if (error) {
@@ -139,6 +143,10 @@ function RegistroForm({ next, router }: { next: string; router: Router }) {
 
   async function onSubmit(values: RegistroInput) {
     setErrorGeneral(null);
+    if (!haySupabaseEnv()) {
+      setErrorGeneral("El servicio no está disponible ahora mismo. Intenta más tarde.");
+      return;
+    }
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
       email: values.email,
