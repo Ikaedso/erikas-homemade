@@ -17,11 +17,13 @@ export function AddToCartControls({
   variantes,
   disponible,
   esPiezaUnica,
+  fotoUrl,
 }: {
   producto: Pick<ProductoPublico, "id" | "slug" | "nombre" | "precio_cop">;
   variantes: VariantePublica[];
   disponible: boolean;
   esPiezaUnica: boolean;
+  fotoUrl?: string;
 }) {
   const { add } = useCart();
   const tallas = useMemo(() => unicos(variantes.map((v) => v.talla)), [variantes]);
@@ -161,6 +163,7 @@ export function AddToCartControls({
                 talla: variante.talla,
                 color: variante.color,
                 esPiezaUnica,
+                fotoUrl,
               },
               cantidad,
             );

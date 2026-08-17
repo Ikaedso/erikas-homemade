@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, hayServiceRole } from "@/lib/supabase/admin";
 import { esAdmin } from "@/lib/auth/require-admin";
+import { enviarCorreo, hayEmail, plantillaCorreo } from "@/lib/email";
+import { formatFecha, formatHora } from "@/lib/format";
 import type { EstadoPedido } from "@/lib/data/pedidos";
 import type { EstadoCita } from "@/lib/data/citas";
 
@@ -24,6 +27,74 @@ export async function revalidarCatalogo(): Promise<void> {
   revalidarTienda();
 }
 
+// ---------- Notificaciones por correo ----------
+const LABEL_PEDIDO: Record<EstadoPedido, string> = {
+  nuevo: "Recibido",
+  pagado: "Pago confirmado",
+  enviado: "Enviado",
+  entregado: "Entregado",
+  cancelado: "Cancelado",
+};
+const LABEL_CITA: Record<EstadoCita, string> = {
+  pendiente: "Pendiente",
+  confirmada: "Confirmada",
+  completada: "Completada",
+  cancelada: "Cancelada",
+};
+
+/** Correo del cliente vía API de administración (requiere service role). */
+async function correoDe(clienteId: string): Promise<string | null> {
+  if (!hayServiceRole()) return null;
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin.auth.admin.getUserById(clienteId);
+    return data.user?.email ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function notificarPedido(clienteId: string, numero: number, estado: EstadoPedido) {
+  if (!hayEmail()) return;
+  const to = await correoDe(clienteId);
+  if (!to) return;
+  const ref = `#EH-${String(numero).padStart(4, "0")}`;
+  const html = plantillaCorreo(
+    `Tu pedido ${ref} ahora está: ${LABEL_PEDIDO[estado]}`,
+    `<p style="margin:0 0 12px;font-size:14px;color:#2E2438;line-height:1.6">
+       Actualizamos el estado de tu pedido <strong>${ref}</strong>.
+     </p>
+     <p style="margin:0;font-size:14px;color:#2E2438;line-height:1.6">
+       Estado actual: <strong style="color:#5B2A86">${LABEL_PEDIDO[estado]}</strong>.
+     </p>`,
+  );
+  await enviarCorreo({ to, subject: `Pedido ${ref} — ${LABEL_PEDIDO[estado]}`, html });
+}
+
+type CitaNotif = {
+  cliente_id: string;
+  inicia_en: string;
+  servicios: { nombre: string } | null;
+};
+
+async function notificarCita(cita: CitaNotif, estado: EstadoCita) {
+  if (!hayEmail()) return;
+  const to = await correoDe(cita.cliente_id);
+  if (!to) return;
+  const servicio = cita.servicios?.nombre ?? "tu servicio";
+  const cuando = `${formatFecha(cita.inicia_en)} · ${formatHora(cita.inicia_en)}`;
+  const html = plantillaCorreo(
+    `Tu cita ahora está: ${LABEL_CITA[estado]}`,
+    `<p style="margin:0 0 12px;font-size:14px;color:#2E2438;line-height:1.6">
+       Tu cita de <strong>${servicio}</strong> del <strong>${cuando}</strong> cambió de estado.
+     </p>
+     <p style="margin:0;font-size:14px;color:#2E2438;line-height:1.6">
+       Estado actual: <strong style="color:#5B2A86">${LABEL_CITA[estado]}</strong>.
+     </p>`,
+  );
+  await enviarCorreo({ to, subject: `Cita ${servicio} — ${LABEL_CITA[estado]}`, html });
+}
+
 const ACENTOS: Record<string, string> = {
   á: "a", é: "e", í: "i", ó: "o", ú: "u", ü: "u", ñ: "n",
 };
@@ -43,10 +114,18 @@ export async function setEstadoPedido(
 ): Promise<ActionResult> {
   if (!(await esAdmin())) return DENEGADO;
   const supabase = await createClient();
-  const { error } = await supabase.from("pedidos").update({ estado }).eq("id", pedidoId);
+  const { data, error } = await supabase
+    .from("pedidos")
+    .update({ estado })
+    .eq("id", pedidoId)
+    .select("numero, cliente_id")
+    .single();
   if (error) return GENERICO;
   revalidatePath("/admin/pedidos");
   revalidatePath("/admin");
+  revalidatePath("/cuenta");
+  revalidatePath("/pedido/[id]", "page");
+  await notificarPedido(data.cliente_id as string, data.numero as number, estado);
   return { ok: true };
 }
 
@@ -61,10 +140,17 @@ export async function getComprobanteUrl(path: string): Promise<string | null> {
 export async function setEstadoCita(citaId: string, estado: EstadoCita): Promise<ActionResult> {
   if (!(await esAdmin())) return DENEGADO;
   const supabase = await createClient();
-  const { error } = await supabase.from("citas").update({ estado }).eq("id", citaId);
+  const { data, error } = await supabase
+    .from("citas")
+    .update({ estado })
+    .eq("id", citaId)
+    .select("cliente_id, inicia_en, servicios(nombre)")
+    .single();
   if (error) return GENERICO;
   revalidatePath("/admin/citas");
   revalidatePath("/admin");
+  revalidatePath("/cuenta");
+  await notificarCita(data as unknown as CitaNotif, estado);
   return { ok: true };
 }
 

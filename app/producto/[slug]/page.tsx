@@ -99,6 +99,7 @@ export default async function ProductoPage({ params }: { params: Promise<Params>
               variantes={variantes}
               disponible={producto.disponible}
               esPiezaUnica={producto.es_pieza_unica}
+              fotoUrl={fotos[0] ? urlFotoProducto(fotos[0].path) : undefined}
             />
           </div>
 

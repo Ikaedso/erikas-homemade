@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Check, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Stitch } from "@/components/brand/stitch";
@@ -62,8 +63,19 @@ export function CheckoutForm() {
   const [pago, setPago] = useState<MetodoPago>("transferencia");
   const [nota, setNota] = useState("");
   const [archivo, setArchivo] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Vista previa del comprobante (solo imágenes); se libera al cambiar/desmontar.
+  useEffect(() => {
+    if (archivo && archivo.type.startsWith("image/")) {
+      const url = URL.createObjectURL(archivo);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+    setPreviewUrl(null);
+  }, [archivo]);
 
   const envio = costoEntrega(entrega);
   const total = subtotal + envio;
@@ -196,6 +208,40 @@ export function CheckoutForm() {
                   className="block w-full text-[13px] text-tinta file:mr-3 file:rounded-pill file:border-0 file:bg-morado file:px-4 file:py-2 file:text-[12px] file:font-medium file:text-blanco hover:file:bg-moradoHondo"
                 />
               </label>
+
+              {archivo && (
+                <div className="mt-3 flex items-center gap-3 rounded-[10px] border border-morado/20 bg-blanco p-2.5">
+                  {previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={previewUrl}
+                      alt="Vista previa del comprobante"
+                      className="size-14 shrink-0 rounded-[8px] object-cover"
+                    />
+                  ) : (
+                    <span className="grid size-14 shrink-0 place-items-center rounded-[8px] bg-lavanda text-morado">
+                      <FileText className="size-6" />
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="flex items-center gap-1.5 text-[13px] font-medium text-moradoHondo">
+                      <Check className="size-3.5 text-morado" /> Comprobante cargado
+                    </p>
+                    <p className="truncate text-[12px] text-tinta/60">{archivo.name}</p>
+                    <p className="text-[11px] text-tinta/45">
+                      {(archivo.size / 1024).toFixed(0)} KB
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setArchivo(null)}
+                    aria-label="Quitar comprobante"
+                    className="grid size-8 shrink-0 place-items-center rounded-full text-tinta/50 transition-colors hover:bg-lavanda hover:text-[#B23A5B]"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </section>

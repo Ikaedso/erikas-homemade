@@ -12,6 +12,7 @@ export type CartItem = {
   color: string;
   cantidad: number;
   esPiezaUnica: boolean;
+  fotoUrl?: string;
 };
 
 type CartContextValue = {

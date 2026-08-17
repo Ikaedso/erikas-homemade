@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,9 +53,22 @@ export default function CarritoPage() {
               <div key={key}>
                 {idx > 0 && <Stitch className="my-4 border-dorado/40" />}
                 <div className="flex gap-4">
-                  <div className="flex size-[82px] shrink-0 items-center justify-center rounded-[7px] bg-gradient-to-br from-lavanda to-nieve text-center">
-                    <span className="px-1 font-display text-[11px] text-morado/40">{i.nombre}</span>
-                  </div>
+                  <Link
+                    href={`/producto/${i.slug}`}
+                    className="relative flex size-[82px] shrink-0 items-center justify-center overflow-hidden rounded-[7px] bg-gradient-to-br from-lavanda to-nieve text-center"
+                  >
+                    {i.fotoUrl ? (
+                      <Image
+                        src={i.fotoUrl}
+                        alt={i.nombre}
+                        fill
+                        sizes="82px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span className="px-1 font-display text-[11px] text-morado/40">{i.nombre}</span>
+                    )}
+                  </Link>
                   <div className="flex flex-1 flex-col">
                     <div className="flex items-start justify-between gap-2">
                       <div>
