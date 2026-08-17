@@ -1,6 +1,9 @@
 "use server";
 
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { enviarCorreo, hayEmail, plantillaCorreo } from "@/lib/email";
+import { formatCOP } from "@/lib/format";
 import type { MetodoEntrega, MetodoPago } from "@/lib/data/pedidos";
 
 export type CrearPedidoInput = {
@@ -52,6 +55,35 @@ export async function crearPedido(input: CrearPedidoInput): Promise<CrearPedidoR
 
   const pedido = Array.isArray(data) ? data[0] : data;
   if (!pedido?.id) return { ok: false, error: "No pudimos crear el pedido." };
+
+  // Correo de confirmación al comprador (después de responder, sin bloquear).
+  if (hayEmail() && user.email) {
+    const to = user.email;
+    const ref = `#EH-${String(pedido.numero ?? "").padStart(4, "0")}`;
+    const total = Number(pedido.total_cop) || 0;
+    const cierre =
+      input.pago === "transferencia"
+        ? "Érika verificará tu comprobante y confirmará el pedido por WhatsApp en menos de 24 h."
+        : "Érika confirmará tu pedido por WhatsApp en menos de 24 h.";
+    after(() =>
+      enviarCorreo({
+        to,
+        subject: `Recibimos tu pedido ${ref}`,
+        html: plantillaCorreo(
+          `¡Tu pedido ${ref} ha sido agendado!`,
+          `<p style="margin:0 0 12px;font-size:14px;color:#2E2438;line-height:1.6">
+             ¡Gracias por tu compra! Recibimos tu pedido <strong>${ref}</strong> y quedó registrado.
+           </p>
+           <p style="margin:0 0 12px;font-size:14px;color:#2E2438;line-height:1.6">
+             Total: <strong style="color:#5B2A86">${formatCOP(total)}</strong>
+           </p>
+           <p style="margin:0;font-size:14px;color:#2E2438;line-height:1.6">
+             ${cierre} Te avisaremos por correo cada vez que cambie el estado.
+           </p>`,
+        ),
+      }),
+    );
+  }
 
   return { ok: true, pedidoId: pedido.id as string };
 }
