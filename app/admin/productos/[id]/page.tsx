@@ -4,17 +4,19 @@ import type { Metadata } from "next";
 import { ProductoForm } from "@/components/admin/producto-form";
 import { StockEditor } from "@/components/admin/stock-editor";
 import { PublicadoToggle } from "@/components/admin/publicado-toggle";
+import { PhotoUploader } from "@/components/admin/photo-uploader";
 import { getProductoAdmin } from "@/lib/data/admin";
-import { getCategorias, getSubcategoriasTodas } from "@/lib/data/catalogo";
+import { getCategorias, getFotos, getSubcategoriasTodas } from "@/lib/data/catalogo";
 
 export const metadata: Metadata = { title: "Editar producto · Panel" };
 
 export default async function EditarProducto({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [data, categorias, subcategorias] = await Promise.all([
+  const [data, categorias, subcategorias, fotos] = await Promise.all([
     getProductoAdmin(id),
     getCategorias(),
     getSubcategoriasTodas(),
+    getFotos(id),
   ]);
   if (!data) notFound();
   const { producto, variantes } = data;
@@ -61,6 +63,11 @@ export default async function EditarProducto({ params }: { params: Promise<{ id:
           <h2 className="mb-3 font-display text-[16px] text-moradoHondo">Inventario (stock)</h2>
           <StockEditor productoId={producto.id} variantes={variantes} />
         </div>
+      </div>
+
+      <div className="mt-6">
+        <h2 className="mb-3 font-display text-[16px] text-moradoHondo">Fotos</h2>
+        <PhotoUploader productoId={producto.id} fotos={fotos} />
       </div>
     </div>
   );

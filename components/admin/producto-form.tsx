@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { crearProducto, actualizarProducto, type ProductoInput } from "@/actions/admin";
@@ -31,6 +32,13 @@ export function ProductoForm({
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [guardado, setGuardado] = useState(false);
+
+  // El aviso de "guardado" se desvanece solo tras unos segundos.
+  useEffect(() => {
+    if (!guardado) return;
+    const t = setTimeout(() => setGuardado(false), 3200);
+    return () => clearTimeout(t);
+  }, [guardado]);
 
   const subsDeCategoria = subcategorias.filter((s) => s.categoria_id === categoriaId);
 
@@ -154,7 +162,17 @@ export function ProductoForm({
         </label>
 
         {error && <p className="text-[13px] text-[#B23A5B]">{error}</p>}
-        {guardado && <p className="text-[13px] text-morado">Cambios guardados.</p>}
+        {guardado && (
+          <div
+            role="status"
+            className="flex items-center gap-2.5 rounded-[10px] border border-morado/15 bg-lavanda px-3.5 py-2.5 duration-300 animate-in fade-in slide-in-from-bottom-1"
+          >
+            <CheckCircle2 className="size-[18px] text-morado animate-pop-check" />
+            <span className="text-[13px] font-medium text-moradoHondo">
+              ¡Cambios guardados con éxito!
+            </span>
+          </div>
+        )}
 
         <Button onClick={guardar} disabled={guardando} size="lg">
           {guardando ? "Guardando…" : modo === "nuevo" ? "Crear producto" : "Guardar cambios"}

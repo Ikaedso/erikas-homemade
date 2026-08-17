@@ -26,13 +26,16 @@ export function PublicadoToggle({ id, publicado }: { id: string; publicado: bool
       onClick={alternar}
       title={valor ? "Publicado" : "Oculto"}
       className={cn(
-        "relative h-6 w-11 rounded-full transition-colors",
-        valor ? "bg-morado" : "bg-tinta/20",
+        "relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-morado/40 focus-visible:ring-offset-2",
+        valor
+          ? "bg-gradient-to-r from-[#6B36A0] to-morado shadow-[0_1px_4px_rgba(91,42,134,0.45)]"
+          : "bg-tinta/15",
+        pendiente && "opacity-70",
       )}
     >
       <span
         className={cn(
-          "absolute top-0.5 size-5 rounded-full bg-blanco transition-transform",
+          "pointer-events-none absolute size-5 rounded-full bg-blanco shadow-[0_1px_2px_rgba(46,36,56,0.35)] transition-transform duration-300",
           valor ? "translate-x-[22px]" : "translate-x-0.5",
         )}
       />

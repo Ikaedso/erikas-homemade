@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Stitch } from "@/components/brand/stitch";
 import { CategoryCard } from "@/components/tienda/category-card";
 import { ProductCard } from "@/components/tienda/product-card";
-import { getDestacados } from "@/lib/data/catalogo";
+import { getDestacados, getFotosPrincipales } from "@/lib/data/catalogo";
+import { urlFotoProducto } from "@/lib/supabase/storage";
 
 const CATEGORIAS = [
   { nombre: "Mujer", href: "/mujer", nota: "Blusas · Vestidos · Bisutería" },
@@ -14,6 +15,7 @@ const CATEGORIAS = [
 
 export default async function HomePage() {
   const destacados = await getDestacados(4);
+  const fotos = await getFotosPrincipales(destacados.map((p) => p.id));
 
   return (
     <>
@@ -65,9 +67,16 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
-            {destacados.map((p) => (
-              <ProductCard key={p.id} producto={p} />
-            ))}
+            {destacados.map((p) => {
+              const foto = fotos.get(p.id);
+              return (
+                <ProductCard
+                  key={p.id}
+                  producto={p}
+                  fotoUrl={foto ? urlFotoProducto(foto) : undefined}
+                />
+              );
+            })}
           </div>
         </section>
       )}

@@ -10,9 +10,11 @@ import {
 import {
   CATEGORIAS_CONOCIDAS,
   getCategoriaPorSlug,
+  getFotosPrincipales,
   getProductosPorCategoria,
   getSubcategorias,
 } from "@/lib/data/catalogo";
+import { urlFotoProducto } from "@/lib/supabase/storage";
 import type { ProductoPublico, Subcategoria } from "@/lib/data/types";
 
 type Params = { categoria: string };
@@ -71,6 +73,8 @@ export default async function CategoriaPage({
     return true;
   });
 
+  const fotos = await getFotosPrincipales(productos.map((p) => p.id));
+
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-10 lg:px-14 lg:py-14">
       {/* Cabecera */}
@@ -109,17 +113,21 @@ export default async function CategoriaPage({
         <div>
           {productos.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6">
-              {productos.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  producto={p}
-                  etiqueta={
-                    p.subcategoria_id
-                      ? `${nombre} · ${nombrePorSubId.get(p.subcategoria_id) ?? ""}`
-                      : nombre
-                  }
-                />
-              ))}
+              {productos.map((p) => {
+                const foto = fotos.get(p.id);
+                return (
+                  <ProductCard
+                    key={p.id}
+                    producto={p}
+                    fotoUrl={foto ? urlFotoProducto(foto) : undefined}
+                    etiqueta={
+                      p.subcategoria_id
+                        ? `${nombre} · ${nombrePorSubId.get(p.subcategoria_id) ?? ""}`
+                        : nombre
+                    }
+                  />
+                );
+              })}
             </div>
           ) : (
             <div className="rounded-[12px] border border-dashed border-tinta/15 py-16 text-center">

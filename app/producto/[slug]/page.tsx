@@ -5,16 +5,19 @@ import { formatCOP } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Stitch } from "@/components/brand/stitch";
 import { ProductCard } from "@/components/tienda/product-card";
+import { ProductGallery } from "@/components/tienda/product-gallery";
 import { AddToCartControls } from "@/components/tienda/add-to-cart";
 import { estadoProducto } from "@/lib/data/types";
 import {
   getCategorias,
   getFotos,
+  getFotosPrincipales,
   getProductoPorSlug,
   getRelacionados,
   getSubcategorias,
   getVariantes,
 } from "@/lib/data/catalogo";
+import { urlFotoProducto } from "@/lib/supabase/storage";
 
 type Params = { slug: string };
 
@@ -45,7 +48,7 @@ export default async function ProductoPage({ params }: { params: Promise<Params>
   const subcategoria = subcategorias.find((s) => s.id === producto.subcategoria_id);
   const estado = estadoProducto(producto);
 
-  void fotos; // Placeholder por ahora: las fotos reales llegan cuando Érika las suba a Storage.
+  const fotosRelacionados = await getFotosPrincipales(relacionados.map((p) => p.id));
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-14 lg:py-12">
@@ -66,12 +69,8 @@ export default async function ProductoPage({ params }: { params: Promise<Params>
       </nav>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_440px] lg:gap-12">
-        {/* Galería (placeholder) */}
-        <div className="flex aspect-[4/5] items-center justify-center rounded-[12px] border border-tinta/[0.08] bg-gradient-to-br from-lavanda to-nieve">
-          <span className="px-6 text-center font-display text-[18px] text-morado/40">
-            {producto.nombre}
-          </span>
-        </div>
+        {/* Galería */}
+        <ProductGallery fotos={fotos} nombre={producto.nombre} />
 
         {/* Información */}
         <div>
@@ -122,9 +121,17 @@ export default async function ProductoPage({ params }: { params: Promise<Params>
           </h2>
           <Stitch className="mt-3 w-10 border-dorado" />
           <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
-            {relacionados.map((p) => (
-              <ProductCard key={p.id} producto={p} etiqueta={categoria?.nombre} />
-            ))}
+            {relacionados.map((p) => {
+              const foto = fotosRelacionados.get(p.id);
+              return (
+                <ProductCard
+                  key={p.id}
+                  producto={p}
+                  fotoUrl={foto ? urlFotoProducto(foto) : undefined}
+                  etiqueta={categoria?.nombre}
+                />
+              );
+            })}
           </div>
         </section>
       )}
