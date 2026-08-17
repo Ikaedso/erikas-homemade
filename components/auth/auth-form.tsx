@@ -153,6 +153,8 @@ function RegistroForm({ next, router }: { next: string; router: Router }) {
       password: values.password,
       options: {
         data: { nombre: values.nombre, whatsapp: values.whatsapp || null },
+        // Usa el dominio actual (localhost o producción) para el enlace del correo.
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     if (error) {
