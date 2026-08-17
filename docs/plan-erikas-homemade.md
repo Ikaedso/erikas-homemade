@@ -28,7 +28,7 @@ El sistema tiene dos grandes propósitos:
 | Rol | Quién | Qué puede hacer |
 |-----|-------|-----------------|
 | **Administradora** | Érika (dueña) | Crear/editar/eliminar productos y servicios, gestionar citas, ver y procesar ventas, panel de control. |
-| **Cliente** | Visitante / comprador | Explorar catálogo, buscar y filtrar, agregar al carrito, comprar, agendar citas. Compra como invitado (registro opcional a futuro). |
+| **Cliente** | Comprador registrado | Explorar catálogo, buscar y filtrar, agregar al carrito, comprar y agendar citas. **Debe registrarse e iniciar sesión** para comprar o agendar (registro obligatorio); conserva su historial de pedidos y citas. |
 
 ---
 
@@ -136,9 +136,12 @@ Agregar/quitar productos, ajustar cantidades, ver subtotal, proceder al checkout
 Resumen para Érika: ventas del día/mes, próximas citas, productos con bajo stock, accesos
 rápidos a los CRUD.
 
-### 5.10 Autenticación — *Transversal*
-Login para Érika (administradora). Los clientes compran como invitados; registro de cuenta
-opcional a futuro.
+### 5.10 Autenticación y registro — *Transversal*
+- **Cliente:** el **registro es obligatorio**. Para comprar o agendar una cita debe **crear una
+  cuenta e iniciar sesión** — no hay compra como invitado. Su cuenta guarda datos de contacto,
+  historial de pedidos y citas.
+- **Érika (admin):** login con acceso al panel administrativo.
+- Registro/inicio con correo y contraseña (opción de recuperar contraseña).
 
 ### 5.11 Contacto / Sobre Érika — *Público*
 Historia de la marca, redes sociales, ubicación e información de contacto.
@@ -151,10 +154,13 @@ definir), búsqueda e inventario ligado a productos.
 ## 6. Flujos de trabajo (recorridos)
 
 **F1 · Cliente compra un producto**
-`Inicio → Catálogo → Detalle → Agregar al carrito → Carrito → Checkout → Confirmación`
+`Inicio → Catálogo → Detalle → Agregar al carrito → Carrito → Registrarse / Iniciar sesión → Checkout → Confirmación`
 
 **F2 · Cliente agenda una reparación**
-`Inicio → Servicios → Detalle del servicio → Agendar cita (fecha/hora) → Datos → Confirmación`
+`Inicio → Servicios → Detalle del servicio → Registrarse / Iniciar sesión → Agendar cita (fecha/hora) → Confirmación`
+
+**F0 · Cliente crea su cuenta** *(obligatorio antes de comprar o agendar)*
+`Registro (nombre · correo · contraseña · teléfono) → Verificación → Inicia sesión`
 
 **F3 · Érika publica un producto** *(ciclo completo)*
 `Login → Panel → Productos → Elegir categoría (Mujer/Hombre/Niño) → Nombre · Descripción · Precio · Stock · Fotos → Publicar → Aparece en la landing/catálogo → El cliente lo agrega al carrito`
@@ -175,7 +181,7 @@ definir), búsqueda e inventario ligado a productos.
 - **Cita** — id, servicio_id, cliente (nombre, contacto), fecha, hora, notas, estado.
 - **Carrito** — id, items[] (producto_id, variante, cantidad, precio).
 - **Pedido / Venta** — id, items[], datos de entrega, total, método de pago, estado, fecha.
-- **Usuario (Admin)** — id, nombre, email, rol, credenciales.
+- **Usuario** — id, nombre, email, contraseña (hash), rol (**cliente / admin**), teléfono, historial de pedidos y citas, fechas.
 
 ---
 
@@ -213,3 +219,54 @@ definir), búsqueda e inventario ligado a productos.
 - **Pagos:** pasarela local (por definir según el país).
 
 *(El stack es orientativo; se confirma al iniciar la Fase 1.)*
+
+---
+
+## 11. Dirección de diseño (referencia visual)
+
+**Base de color — el blanco es el color principal.** Toda la interfaz es blanca/luminosa; los
+colores de marca (morado `#5B2A86`, morado profundo `#3A1857` y dorado `#B98A2E`) se usan **solo
+en los detalles y acentos**: botones, enlaces, íconos, estados hover, badges, subrayados y el pie
+de página. El objetivo es una experiencia limpia y amena, con la marca presente en los detalles.
+
+**Estructura de referencia (estilo tipo *Ovejita*):**
+- **Header fijo:** logo a la izquierda; **navegación por categorías** (Inicio · Mujer · Hombre ·
+  Niño · Manualidades · Servicios · Nuestras tiendas/Contacto); a la derecha íconos de **cuenta,
+  búsqueda y carrito**.
+- **Home / Landing:** **hero tipo banner/carrusel** con imagen y mensaje de marca; sección
+  **"Nuestro catálogo"** con **tarjetas por categoría** (Mujer, Hombre, Niño); bloque de
+  **historia de la marca** ("erika's homemade"); sección de **productos destacados / básicos**;
+  footer completo.
+- **Página de categoría:** título de la categoría + **barra lateral de filtros con subcategorías**
+  (p. ej. franelas, camisetas, ropa interior…) + **grilla de productos** (foto · nombre · precio).
+- **Detalle de producto:** galería, descripción, precio, variantes, disponible/agotado, agregar al carrito.
+- **Footer:** menú inferior (contáctanos, preguntas frecuentes, nosotros, términos, privacidad),
+  info de contacto/tiendas, **suscripción al correo** y **redes sociales**.
+- **Añadir, sobre esa base, lo propio de Érika** que la referencia no tiene: **Servicios**,
+  **Agendar cita** y el **panel administrativo**.
+
+**Tono:** artesanal, cercano y femenino, coherente con "hecho a mano".
+
+---
+
+## 12. Brief para Claude Design (prompt base)
+
+> Diseña la interfaz de **Erika's Homemade**, una tienda online de ropa y bisutería hecha a mano
+> con módulo de **servicios de costura y agenda de citas**.
+>
+> **Colorimetría:** **base blanca dominante**; usa el morado de marca `#5B2A86`, el morado profundo
+> `#3A1857` y el dorado `#B98A2E` **solo en detalles y acentos** (botones, enlaces, íconos, hover,
+> badges, footer). Nada de fondos saturados: limpio, luminoso y amable.
+>
+> **Estructura de referencia (estilo Ovejita):** header con navegación por categorías (Mujer ·
+> Hombre · Niño · Manualidades · Servicios) + íconos de cuenta/búsqueda/carrito; home con hero,
+> tarjetas por categoría, historia de marca, productos destacados y footer con newsletter y redes;
+> página de categoría con **filtros de subcategoría en barra lateral** + **grilla de productos**;
+> detalle de producto con "agregar al carrito".
+>
+> **Pantallas a diseñar:** Home · Catálogo/Categoría · Detalle de producto · Carrito · Checkout ·
+> Registro/Login · Servicios · Detalle de servicio · Agendar cita · Panel admin (dashboard,
+> productos + formulario, servicios, citas, ventas).
+>
+> **Reglas de negocio:** el **registro es obligatorio** para comprar o agendar; el **stock es
+> interno** (el cliente solo ve disponible/agotado, nunca el número); **mobile-first**.
