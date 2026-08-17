@@ -11,7 +11,7 @@ import {
 import {
   CATEGORIAS_CONOCIDAS,
   getCategoriaPorSlug,
-  getFotosPrincipales,
+  getFotosGaleria,
   getProductosPorCategoria,
   getSubcategorias,
 } from "@/lib/data/catalogo";
@@ -75,7 +75,7 @@ export default async function CategoriaPage({
     return true;
   });
 
-  const fotos = await getFotosPrincipales(productos.map((p) => p.id));
+  const fotos = await getFotosGaleria(productos.map((p) => p.id));
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-10 lg:px-14 lg:py-14">
@@ -112,22 +112,19 @@ export default async function CategoriaPage({
         <div>
           {productos.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6">
-              {productos.map((p, i) => {
-                const foto = fotos.get(p.id);
-                return (
-                  <Reveal key={p.id} delay={Math.min(i, 8) * 55}>
-                    <ProductCard
-                      producto={p}
-                      fotoUrl={foto ? urlFotoProducto(foto) : undefined}
-                      etiqueta={
-                        p.subcategoria_id
-                          ? `${nombre} · ${nombrePorSubId.get(p.subcategoria_id) ?? ""}`
-                          : nombre
-                      }
-                    />
-                  </Reveal>
-                );
-              })}
+              {productos.map((p, i) => (
+                <Reveal key={p.id} delay={Math.min(i, 8) * 55}>
+                  <ProductCard
+                    producto={p}
+                    fotoUrls={(fotos.get(p.id) ?? []).map(urlFotoProducto)}
+                    etiqueta={
+                      p.subcategoria_id
+                        ? `${nombre} · ${nombrePorSubId.get(p.subcategoria_id) ?? ""}`
+                        : nombre
+                    }
+                  />
+                </Reveal>
+              ))}
             </div>
           ) : (
             <div className="rounded-[12px] border border-dashed border-tinta/15 py-16 text-center">

@@ -106,6 +106,29 @@ export async function getFotos(productoId: string): Promise<FotoProducto[]> {
   return data ?? [];
 }
 
+/** Hasta `max` fotos (por orden) de cada producto pedido, para galería en tarjetas. */
+export async function getFotosGaleria(
+  ids: string[],
+  max = 4,
+): Promise<Map<string, string[]>> {
+  const mapa = new Map<string, string[]>();
+  if (!haySupabase() || ids.length === 0) return mapa;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("fotos_producto")
+    .select("producto_id, path, orden")
+    .in("producto_id", ids)
+    .order("orden");
+  for (const f of (data as { producto_id: string; path: string }[]) ?? []) {
+    const arr = mapa.get(f.producto_id) ?? [];
+    if (arr.length < max) {
+      arr.push(f.path);
+      mapa.set(f.producto_id, arr);
+    }
+  }
+  return mapa;
+}
+
 /** Foto principal (primera por orden) de cada producto pedido. */
 export async function getFotosPrincipales(ids: string[]): Promise<Map<string, string>> {
   const mapa = new Map<string, string>();

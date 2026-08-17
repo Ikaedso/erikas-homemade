@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/tienda/product-card";
 import {
   getCategorias,
   getDestacados,
-  getFotosPrincipales,
+  getFotosGaleria,
   getPortadasCategorias,
 } from "@/lib/data/catalogo";
 import { urlFotoProducto } from "@/lib/supabase/storage";
@@ -43,7 +43,7 @@ export default async function HomePage({
     getDestacados(4),
   ]);
   const idPorSlug = new Map(categorias.map((c) => [c.slug, c.id]));
-  const fotos = await getFotosPrincipales(destacados.map((p) => p.id));
+  const fotos = await getFotosGaleria(destacados.map((p) => p.id));
 
   return (
     <>
@@ -107,14 +107,11 @@ export default async function HomePage({
             </Link>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
-            {destacados.map((p, i) => {
-              const foto = fotos.get(p.id);
-              return (
-                <Reveal key={p.id} delay={Math.min(i, 8) * 60}>
-                  <ProductCard producto={p} fotoUrl={foto ? urlFotoProducto(foto) : undefined} />
-                </Reveal>
-              );
-            })}
+            {destacados.map((p, i) => (
+              <Reveal key={p.id} delay={Math.min(i, 8) * 60}>
+                <ProductCard producto={p} fotoUrls={(fotos.get(p.id) ?? []).map(urlFotoProducto)} />
+              </Reveal>
+            ))}
           </div>
         </section>
       )}

@@ -68,7 +68,7 @@ export default async function BuscarPage({
               <Reveal key={r.id} delay={Math.min(i, 8) * 55}>
                 <ProductCard
                   producto={producto}
-                  fotoUrl={r.fotoUrl ?? undefined}
+                  fotoUrls={r.fotoUrl ? [r.fotoUrl] : []}
                   etiqueta={r.categoriaNombre ?? undefined}
                 />
               </Reveal>

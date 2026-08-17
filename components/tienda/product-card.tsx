@@ -1,20 +1,20 @@
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { formatCOP } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { CardImage } from "@/components/tienda/card-image";
 import { estadoProducto, type ProductoPublico } from "@/lib/data/types";
 
 export function ProductCard({
   producto,
   etiqueta,
-  fotoUrl,
+  fotoUrls = [],
 }: {
   producto: ProductoPublico;
   /** Texto pequeño sobre el nombre (p. ej. "Mujer · Blusas"). */
   etiqueta?: string;
-  /** URL de la foto principal; si falta se muestra el marcador. */
-  fotoUrl?: string;
+  /** URLs de fotos; la primera es la portada. Al pasar el cursor rotan. */
+  fotoUrls?: string[];
 }) {
   const estado = estadoProducto(producto);
   const agotado = estado.key === "agotado";
@@ -33,19 +33,7 @@ export function ProductCard({
         <Badge variant={estado.key} className="absolute left-3 top-3 z-10">
           {estado.label}
         </Badge>
-        {fotoUrl ? (
-          <Image
-            src={fotoUrl}
-            alt={producto.nombre}
-            fill
-            sizes="(min-width: 1024px) 300px, 45vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          />
-        ) : (
-          <span className="px-4 text-center font-display text-[15px] text-morado/40">
-            {producto.nombre}
-          </span>
-        )}
+        <CardImage fotoUrls={fotoUrls} nombre={producto.nombre} />
       </div>
 
       <div className="mt-3">

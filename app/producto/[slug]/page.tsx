@@ -69,7 +69,7 @@ export default async function ProductoPage({ params }: { params: Promise<Params>
         <span className="text-tinta/70">{producto.nombre}</span>
       </nav>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_440px] lg:gap-12">
+      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,500px)_1fr] lg:gap-12">
         {/* Galería */}
         <Reveal>
           <ProductGallery fotos={fotos} nombre={producto.nombre} />
@@ -131,7 +131,7 @@ export default async function ProductoPage({ params }: { params: Promise<Params>
                 <Reveal key={p.id} delay={Math.min(i, 8) * 55}>
                   <ProductCard
                     producto={p}
-                    fotoUrl={foto ? urlFotoProducto(foto) : undefined}
+                    fotoUrls={foto ? [urlFotoProducto(foto)] : []}
                     etiqueta={categoria?.nombre}
                   />
                 </Reveal>
