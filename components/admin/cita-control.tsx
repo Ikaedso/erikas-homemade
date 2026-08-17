@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { setEstadoCita } from "@/actions/admin";
 import type { EstadoCita } from "@/lib/data/citas";
 
@@ -11,13 +11,23 @@ export function CitaControl({ citaId, estado }: { citaId: string; estado: Estado
   const [pendiente, startTransition] = useTransition();
   const [error, setError] = useState(false);
 
+  // Re-sincroniza con el servidor tras cada revalidación.
+  useEffect(() => {
+    setValor(estado);
+  }, [estado]);
+
   function cambiar(nuevo: EstadoCita) {
     const previo = valor;
     setValor(nuevo);
     setError(false);
     startTransition(async () => {
-      const res = await setEstadoCita(citaId, nuevo);
-      if (!res.ok) {
+      try {
+        const res = await setEstadoCita(citaId, nuevo);
+        if (!res.ok) {
+          setValor(previo);
+          setError(true);
+        }
+      } catch {
         setValor(previo);
         setError(true);
       }

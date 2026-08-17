@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { FileText } from "lucide-react";
 import { setEstadoPedido, getComprobanteUrl } from "@/actions/admin";
 import type { EstadoPedido } from "@/lib/data/pedidos";
@@ -20,13 +20,23 @@ export function PedidoControl({
   const [pendiente, startTransition] = useTransition();
   const [error, setError] = useState(false);
 
+  // Re-sincroniza con el servidor tras cada revalidación.
+  useEffect(() => {
+    setValor(estado);
+  }, [estado]);
+
   function cambiar(nuevo: EstadoPedido) {
     const previo = valor;
     setValor(nuevo);
     setError(false);
     startTransition(async () => {
-      const res = await setEstadoPedido(pedidoId, nuevo);
-      if (!res.ok) {
+      try {
+        const res = await setEstadoPedido(pedidoId, nuevo);
+        if (!res.ok) {
+          setValor(previo);
+          setError(true);
+        }
+      } catch {
         setValor(previo);
         setError(true);
       }

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient, hayServiceRole } from "@/lib/supabase/admin";
 import { esAdmin } from "@/lib/auth/require-admin";
@@ -125,7 +126,8 @@ export async function setEstadoPedido(
   revalidatePath("/admin");
   revalidatePath("/cuenta");
   revalidatePath("/pedido/[id]", "page");
-  await notificarPedido(data.cliente_id as string, data.numero as number, estado);
+  // El correo se envía DESPUÉS de responder para no bloquear la acción.
+  after(() => notificarPedido(data.cliente_id as string, data.numero as number, estado));
   return { ok: true };
 }
 
@@ -150,7 +152,8 @@ export async function setEstadoCita(citaId: string, estado: EstadoCita): Promise
   revalidatePath("/admin/citas");
   revalidatePath("/admin");
   revalidatePath("/cuenta");
-  await notificarCita(data as unknown as CitaNotif, estado);
+  // El correo se envía DESPUÉS de responder para no bloquear la acción.
+  after(() => notificarCita(data as unknown as CitaNotif, estado));
   return { ok: true };
 }
 
