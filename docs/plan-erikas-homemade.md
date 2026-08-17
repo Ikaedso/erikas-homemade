@@ -59,9 +59,10 @@ Son independientes del acento de marca.
 ```
 Inicio (Landing)
 ├── Catálogo
-│   ├── Filtros por categoría (ropa · camisas · manualidades · bisutería)
+│   ├── Categorías (por público): Mujer · Hombre · Niño  (+ Manualidades, secundaria)
+│   ├── Subcategorías por tipo de prenda (blusas · camisas · vestidos · accesorios…)
 │   ├── Búsqueda
-│   └── Detalle de producto → Agregar al carrito
+│   └── Detalle de producto → disponible/agotado → Agregar al carrito
 ├── Servicios
 │   └── Detalle de servicio → Agendar cita
 ├── Agendar cita (Reservas)
@@ -87,16 +88,27 @@ Presentación de la marca. Productos destacados, categorías, acceso rápido a s
 
 ### 5.2 Catálogo — *Público*
 - Grilla de productos con foto, nombre y precio.
-- Filtros por **categoría**: ropa, camisas, manualidades, bisutería.
+- Filtros por **categoría (público):** **Mujer, Hombre, Niño** *(foco inicial)*;
+  **Manualidades** queda como categoría secundaria.
+- Cada categoría tiene **subcategorías por tipo de prenda** (blusas, camisas, vestidos,
+  accesorios/bisutería…).
 - Búsqueda por nombre.
 - **Detalle de producto:** galería de fotos, descripción, precio, variantes (talla/color),
-  stock disponible, botón **Agregar al carrito**.
+  indicador **disponible / agotado** (sin mostrar la cantidad), botón **Agregar al carrito**.
 
-### 5.3 Gestión de productos (CRUD) — *Admin*
-Érika puede **crear, editar y eliminar** productos.
-- Campos: nombre, categoría, descripción, precio, fotos (varias), stock, variantes
-  (talla/color), estado (**publicado / borrador**).
-- Control de inventario (stock por variante).
+### 5.3 Gestión de productos — Panel administrativo (CRUD) — *Admin*
+Es el **centro de control** de Érika. Desde aquí administra todo el catálogo sin tocar código:
+- **Agregar producto:** elige la **categoría** (Mujer / Hombre / Niño / Manualidades) y su
+  subcategoría, y llena: **nombre, descripción, precio, stock** y fotos.
+- **Publicar:** al guardarlo, el producto aparece automáticamente en la **landing / catálogo**
+  de la página, donde el cliente lo ve y puede **agregarlo al carrito**.
+- **Editar / deshabilitar / eliminar:** puede modificar cualquier dato, ocultar (deshabilitar)
+  o borrar un producto en cualquier momento.
+- **Stock:** el administrador **define y edita el stock** de cada producto desde el panel.
+
+**Regla de stock (importante):** el **cliente NO ve la cantidad exacta** de stock. Solo ve si el
+producto está **disponible** o **agotado**. El número real es interno y solo lo maneja Érika desde
+el panel; el stock baja de forma automática con cada venta.
 
 ### 5.4 Servicios — *Público*
 - Lista de servicios que ofrece Érika (reparación, ajustes, confección).
@@ -144,8 +156,8 @@ definir), búsqueda e inventario ligado a productos.
 **F2 · Cliente agenda una reparación**
 `Inicio → Servicios → Detalle del servicio → Agendar cita (fecha/hora) → Datos → Confirmación`
 
-**F3 · Érika publica un producto**
-`Login → Dashboard → Productos → Crear → (campos + fotos) → Publicar`
+**F3 · Érika publica un producto** *(ciclo completo)*
+`Login → Panel → Productos → Elegir categoría (Mujer/Hombre/Niño) → Nombre · Descripción · Precio · Stock · Fotos → Publicar → Aparece en la landing/catálogo → El cliente lo agrega al carrito`
 
 **F4 · Érika gestiona una cita**
 `Login → Dashboard → Citas → Ver solicitud → Confirmar/Reagendar → Notificar al cliente`
@@ -157,8 +169,8 @@ definir), búsqueda e inventario ligado a productos.
 
 ## 7. Modelo de datos (entidades principales)
 
-- **Producto** — id, nombre, categoría, descripción, precio, stock, variantes[], imágenes[], estado, fechas.
-- **Categoría** — id, nombre, slug.
+- **Producto** — id, nombre, categoría, subcategoría, descripción, precio, stock (interno), variantes[], imágenes[], estado (publicado/borrador/deshabilitado), fechas.
+- **Categoría** — id, nombre (Mujer / Hombre / Niño / Manualidades), slug, subcategorías[].
 - **Servicio** — id, nombre, descripción, precio/rango, duración estimada, estado.
 - **Cita** — id, servicio_id, cliente (nombre, contacto), fecha, hora, notas, estado.
 - **Carrito** — id, items[] (producto_id, variante, cantidad, precio).
