@@ -33,14 +33,24 @@ un **panel administrativo**.
   base se añaden los módulos propios de Érika: Servicios, Agendar cita y Panel admin.
 - **Tono:** artesanal, cercano, femenino ("hecho a mano").
 
+## Stack tecnológico (decidido — Fase 0)
+
+- **Next.js** (App Router) + TypeScript + React · **Supabase** (Postgres + Auth + Storage + RLS).
+- **Tailwind CSS** + **shadcn/ui** + lucide-react · **next/font**.
+- **React Hook Form** + **Zod** · Server Actions + `@supabase/ssr` · TanStack Query (carrito).
+- **react-day-picker** + date-fns (citas) · **Resend** (emails) · WhatsApp vía `wa.me`.
+- **Pagos:** transferencia / pago móvil + **comprobante** (sin pasarela; Érika confirma manual).
+- **Deploy:** Vercel (front) + Supabase (backend). Tooling: pnpm, ESLint, Prettier, Vitest, Playwright.
+- Detalle completo en [`docs/stack-tecnologico.md`](docs/stack-tecnologico.md).
+
 ## Entregables
 
-- Documento del plan: `docs/plan-erikas-homemade.md` (incluye módulos, flujos, mapa del sitio,
-  modelo de datos, roadmap, dirección de diseño y el brief/prompt base — secciones 11 y 12).
+- Documento del plan: `docs/plan-erikas-homemade.md` (módulos, flujos, mapa del sitio, modelo de
+  datos, roadmap, dirección de diseño y el brief/prompt base — secciones 11 y 12).
+- Prompt para diseño: `docs/prompt-claude-design.md`.
+- Stack tecnológico: `docs/stack-tecnologico.md`.
 - Página de handoff visual (artifact) para compartir con diseño.
 
 ## Git
 
-- Rama de trabajo: `claude/erikas-homemade-visualization-p3rtel`.
-- Nota: el push a GitHub requiere **permiso de escritura** de la GitHub App de Claude sobre
-  `Ikaedso/erikas-homemade` (a la fecha, solo lectura → error 403).
+- Rama principal: `main` (rama por defecto del repositorio).
