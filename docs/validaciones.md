@@ -90,6 +90,10 @@ Al auditar RLS + lógica se encontraron y cerraron **3 huecos reales**:
 
 > ⚠️ **Aplicar `supabase/migrations/0007_seguridad.sql`** en Supabase para que estos cierres queden activos.
 
+## Arreglo posterior — fotos visibles solo para admin (migración `0008_fotos_rls.sql`)
+
+La política `fotos lectura publica` comprobaba `publicado` leyendo la tabla `productos`, que tiene RLS solo-admin. Para clientes/anónimos el subquery no veía filas y **ninguna foto era legible** (las imágenes solo aparecían para el admin). Se cierra con `producto_publicado(uuid)` (`security definer`), que verifica `publicado` sin que el RLS de `productos` bloquee la comprobación.
+
 ## Residuales de bajo riesgo (opcionales)
 - **Citas por API**: un usuario podría insertar una cita `pendiente` con un horario raro saltándose la validación de la Server Action (la UI solo ofrece horarios válidos, `unique(inicia_en)` evita choques y Érika revisa toda cita antes de confirmar). Cierre total: mover la creación a una función `security definer`.
 - **`requiere_consulta`** (confección a medida): hoy se puede agendar directo; podría exigir consulta previa.
