@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient, haySupabaseEnv } from "@/lib/supabase/client";
 
-/** Devuelve el usuario autenticado (o null) y se actualiza con los cambios de sesión. */
+/** Devuelve el usuario autenticado (o null), si es admin, y reacciona a los cambios de sesión. */
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
+  const [esAdmin, setEsAdmin] = useState(false);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
@@ -16,19 +17,31 @@ export function useUser() {
     }
     const supabase = createClient();
 
+    async function cargarRol(u: User | null) {
+      if (!u) {
+        setEsAdmin(false);
+        return;
+      }
+      const { data } = await supabase.from("perfiles").select("rol").eq("id", u.id).maybeSingle();
+      setEsAdmin(data?.rol === "admin");
+    }
+
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user ?? null);
       setCargando(false);
+      void cargarRol(data.user ?? null);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      void cargarRol(u);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  return { user, cargando };
+  return { user, esAdmin, cargando };
 }

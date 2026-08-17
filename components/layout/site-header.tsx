@@ -36,7 +36,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { count } = useCart();
-  const { user } = useUser();
+  const { user, esAdmin } = useUser();
 
   const nombre =
     (user?.user_metadata?.nombre as string | undefined) ?? user?.email ?? null;
@@ -86,6 +86,14 @@ export function SiteHeader() {
 
         {/* Acciones */}
         <div className="flex items-center gap-3.5 text-morado lg:gap-4">
+          {esAdmin && (
+            <Link
+              href="/admin"
+              className="hidden rounded-pill bg-dorado px-3 py-1.5 text-[12.5px] font-medium text-blanco lg:inline-flex"
+            >
+              Panel
+            </Link>
+          )}
           {user ? (
             <div className="hidden items-center gap-3 lg:flex">
               <span className="text-[13.5px] font-medium">Hola, {primerNombre}</span>
@@ -133,6 +141,15 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            {esAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-between border-b border-tinta/[0.07] py-3 font-display text-[19px] text-dorado"
+              >
+                Panel de Érika
+              </Link>
+            )}
             <div className="mt-3 flex gap-2 pb-2">
               {user ? (
                 <>
