@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { urlFotoProducto } from "@/lib/supabase/storage";
+import { revalidarCatalogo } from "@/actions/admin";
 import type { FotoProducto } from "@/lib/data/types";
 
 export function PhotoUploader({
@@ -56,6 +57,7 @@ export function PhotoUploader({
     }
 
     setSubiendo(false);
+    await revalidarCatalogo();
     router.refresh();
   }
 
@@ -63,6 +65,7 @@ export function PhotoUploader({
     const supabase = createClient();
     await supabase.storage.from("productos").remove([foto.path]);
     await supabase.from("fotos_producto").delete().eq("id", foto.id);
+    await revalidarCatalogo();
     router.refresh();
   }
 

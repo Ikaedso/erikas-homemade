@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Minus, Plus } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Check, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart/cart-provider";
@@ -30,6 +31,14 @@ export function AddToCartControls({
   const [color, setColor] = useState<string | null>(colores[0] ?? null);
   const [cantidad, setCantidad] = useState(1);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [agregado, setAgregado] = useState(false);
+
+  // El aviso de "añadido" se desvanece solo.
+  useEffect(() => {
+    if (!agregado) return;
+    const t = setTimeout(() => setAgregado(false), 2600);
+    return () => clearTimeout(t);
+  }, [agregado]);
 
   const maxCantidad = esPiezaUnica ? 1 : 8;
 
@@ -155,15 +164,38 @@ export function AddToCartControls({
               },
               cantidad,
             );
-            setAviso("Añadido al carrito.");
+            setAviso(null);
+            // Reinicia la animación aunque ya estuviera visible.
+            setAgregado(false);
+            requestAnimationFrame(() => setAgregado(true));
           }}
         >
           Agregar al carrito
         </Button>
       </div>
 
+      {agregado && (
+        <div
+          role="status"
+          className="flex items-center justify-between gap-3 rounded-[10px] border border-morado/15 bg-lavanda px-3.5 py-2.5 duration-300 animate-in fade-in slide-in-from-bottom-1"
+        >
+          <span className="inline-flex items-center gap-2 text-[13px] font-medium text-moradoHondo">
+            <span className="grid size-5 place-items-center rounded-full bg-morado text-blanco animate-pop-check">
+              <Check className="size-3.5" />
+            </span>
+            Añadido al carrito
+          </span>
+          <Link
+            href="/carrito"
+            className="shrink-0 text-[12.5px] font-medium text-morado underline-offset-2 hover:underline"
+          >
+            Ver carrito
+          </Link>
+        </div>
+      )}
+
       {esPiezaUnica && <p className="text-[12px] text-dorado">Pieza única: solo hay una.</p>}
-      {aviso && <p className="text-[12px] text-morado">{aviso}</p>}
+      {aviso && <p className="text-[12px] text-[#B23A5B]">{aviso}</p>}
     </div>
   );
 }

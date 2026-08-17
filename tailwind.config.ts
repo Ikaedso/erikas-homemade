@@ -51,11 +51,18 @@ const config: Config = {
           "60%": { transform: "scale(1.15)" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        "cart-bump": {
+          "0%": { transform: "scale(1)" },
+          "35%": { transform: "scale(1.35)" },
+          "70%": { transform: "scale(0.92)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "pop-check": "pop-check 0.42s cubic-bezier(0.34,1.56,0.64,1)",
+        "cart-bump": "cart-bump 0.4s ease",
       },
     },
   },

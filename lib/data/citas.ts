@@ -41,6 +41,25 @@ export async function getServicios(): Promise<Servicio[]> {
   return (data as Servicio[]) ?? [];
 }
 
+/** Servicios activos paginados (para escalar la lista a futuro). */
+export async function getServiciosPagina(
+  page: number,
+  size: number,
+): Promise<{ items: Servicio[]; total: number }> {
+  if (!haySupabase()) return { items: [], total: 0 };
+  const supabase = await createClient();
+  const desde = Math.max(0, (page - 1) * size);
+  const hasta = desde + size - 1;
+  const { data, count } = await supabase
+    .from("servicios")
+    .select("*", { count: "exact" })
+    .eq("activo", true)
+    .order("requiere_consulta")
+    .order("nombre")
+    .range(desde, hasta);
+  return { items: (data as Servicio[]) ?? [], total: count ?? 0 };
+}
+
 export async function getServicioPorSlug(slug: string): Promise<Servicio | null> {
   if (!haySupabase()) return null;
   const supabase = await createClient();

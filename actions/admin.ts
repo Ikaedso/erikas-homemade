@@ -10,6 +10,20 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 const DENEGADO: ActionResult = { ok: false, error: "No autorizado." };
 const GENERICO: ActionResult = { ok: false, error: "No se pudo guardar. Intenta de nuevo." };
 
+/** Revalida las páginas públicas de la tienda para que reflejen los cambios al instante. */
+function revalidarTienda() {
+  revalidatePath("/");
+  revalidatePath("/servicios");
+  revalidatePath("/[categoria]", "page");
+  revalidatePath("/producto/[slug]", "page");
+}
+
+/** Acción para que el subidor de fotos (cliente) refresque la tienda tras cambiar imágenes. */
+export async function revalidarCatalogo(): Promise<void> {
+  if (!(await esAdmin())) return;
+  revalidarTienda();
+}
+
 const ACENTOS: Record<string, string> = {
   á: "a", é: "e", í: "i", ó: "o", ú: "u", ü: "u", ñ: "n",
 };
@@ -61,6 +75,7 @@ export async function setServicioActivo(id: string, activo: boolean): Promise<Ac
   const { error } = await supabase.from("servicios").update({ activo }).eq("id", id);
   if (error) return GENERICO;
   revalidatePath("/admin/servicios");
+  revalidatePath("/servicios");
   return { ok: true };
 }
 
@@ -71,6 +86,7 @@ export async function setPublicado(productoId: string, publicado: boolean): Prom
   const { error } = await supabase.from("productos").update({ publicado }).eq("id", productoId);
   if (error) return GENERICO;
   revalidatePath("/admin/productos");
+  revalidarTienda();
   return { ok: true };
 }
 
@@ -110,6 +126,7 @@ export async function crearProducto(
     .single();
   if (error) return { ok: false, error: "No se pudo crear el producto." };
   revalidatePath("/admin/productos");
+  revalidarTienda();
   return { ok: true, id: data.id };
 }
 
@@ -134,6 +151,7 @@ export async function actualizarProducto(
   if (error) return GENERICO;
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${id}`);
+  revalidarTienda();
   return { ok: true };
 }
 
@@ -144,6 +162,7 @@ export async function setStockVariante(varianteId: string, stock: number): Promi
   const supabase = await createClient();
   const { error } = await supabase.from("variantes").update({ stock }).eq("id", varianteId);
   if (error) return GENERICO;
+  revalidarTienda();
   return { ok: true };
 }
 
@@ -161,6 +180,7 @@ export async function agregarVariante(
     .insert({ producto_id: productoId, talla: talla.trim(), color: color.trim(), stock });
   if (error) return { ok: false, error: "Esa combinación de talla y color ya existe." };
   revalidatePath(`/admin/productos/${productoId}`);
+  revalidarTienda();
   return { ok: true };
 }
 
@@ -173,5 +193,6 @@ export async function eliminarVariante(
   const { error } = await supabase.from("variantes").delete().eq("id", varianteId);
   if (error) return GENERICO;
   revalidatePath(`/admin/productos/${productoId}`);
+  revalidarTienda();
   return { ok: true };
 }

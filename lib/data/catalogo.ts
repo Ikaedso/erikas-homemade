@@ -122,6 +122,29 @@ export async function getFotosPrincipales(ids: string[]): Promise<Map<string, st
   return mapa;
 }
 
+/**
+ * Foto de portada por categoría: la foto principal del producto publicado más
+ * reciente de cada categoría. Devuelve un mapa `categoria_id -> path`.
+ */
+export async function getPortadasCategorias(): Promise<Map<string, string>> {
+  const mapa = new Map<string, string>();
+  if (!haySupabase()) return mapa;
+  const supabase = await createClient();
+  const { data: prods } = await supabase
+    .from("catalogo_publico")
+    .select("id, categoria_id")
+    .order("creado_en", { ascending: false });
+  const lista = (prods as { id: string; categoria_id: string }[]) ?? [];
+  if (lista.length === 0) return mapa;
+
+  const fotos = await getFotosPrincipales(lista.map((p) => p.id));
+  for (const p of lista) {
+    const foto = fotos.get(p.id);
+    if (foto && !mapa.has(p.categoria_id)) mapa.set(p.categoria_id, foto);
+  }
+  return mapa;
+}
+
 export async function getRelacionados(
   categoriaId: string,
   excluirId: string,

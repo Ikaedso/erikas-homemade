@@ -1,20 +1,47 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Stitch } from "@/components/brand/stitch";
-import { CategoryCard } from "@/components/tienda/category-card";
+import { CategoryCard, type MotivoCategoria } from "@/components/tienda/category-card";
 import { ProductCard } from "@/components/tienda/product-card";
-import { getDestacados, getFotosPrincipales } from "@/lib/data/catalogo";
+import {
+  getCategorias,
+  getDestacados,
+  getFotosPrincipales,
+  getPortadasCategorias,
+} from "@/lib/data/catalogo";
 import { urlFotoProducto } from "@/lib/supabase/storage";
 
-const CATEGORIAS = [
-  { nombre: "Mujer", href: "/mujer", nota: "Blusas · Vestidos · Bisutería" },
-  { nombre: "Hombre", href: "/hombre", nota: "Camisas · Pantalones" },
-  { nombre: "Niño", href: "/nino", nota: "Uniformes · Básicos" },
-  { nombre: "Manualidades", href: "/manualidades", nota: "Piezas únicas", destacada: true },
+// Siempre fresco: refleja en tiempo real lo que Érika publica desde el panel.
+export const dynamic = "force-dynamic";
+
+const CATEGORIAS: {
+  nombre: string;
+  href: string;
+  slug: string;
+  nota: string;
+  motivo: MotivoCategoria;
+}[] = [
+  { nombre: "Mujer", href: "/mujer", slug: "mujer", nota: "Blusas · Vestidos · Bisutería", motivo: "mujer" },
+  { nombre: "Hombre", href: "/hombre", slug: "hombre", nota: "Camisas · Pantalones", motivo: "hombre" },
+  { nombre: "Niño", href: "/nino", slug: "nino", nota: "Uniformes · Básicos", motivo: "nino" },
 ];
 
-export default async function HomePage() {
-  const destacados = await getDestacados(4);
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string }>;
+}) {
+  // Respaldo: si la confirmación de correo cae en "/?code=…", la procesamos.
+  const { code } = await searchParams;
+  if (code) redirect(`/auth/callback?code=${encodeURIComponent(code)}`);
+
+  const [categorias, portadas, destacados] = await Promise.all([
+    getCategorias(),
+    getPortadasCategorias(),
+    getDestacados(4),
+  ]);
+  const idPorSlug = new Map(categorias.map((c) => [c.slug, c.id]));
   const fotos = await getFotosPrincipales(destacados.map((p) => p.id));
 
   return (
@@ -50,10 +77,21 @@ export default async function HomePage() {
           <Stitch className="mt-3 w-10 border-dorado" />
         </div>
 
-        <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
-          {CATEGORIAS.map((cat) => (
-            <CategoryCard key={cat.href} {...cat} />
-          ))}
+        <div className="mt-8 grid grid-cols-3 gap-3 lg:gap-6">
+          {CATEGORIAS.map((cat) => {
+            const catId = idPorSlug.get(cat.slug);
+            const portada = catId ? portadas.get(catId) : undefined;
+            return (
+              <CategoryCard
+                key={cat.href}
+                nombre={cat.nombre}
+                href={cat.href}
+                nota={cat.nota}
+                motivo={cat.motivo}
+                imagen={portada ? urlFotoProducto(portada) : undefined}
+              />
+            );
+          })}
         </div>
       </section>
 

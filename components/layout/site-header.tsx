@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -37,6 +37,19 @@ export function SiteHeader() {
   const router = useRouter();
   const { count } = useCart();
   const { user, esAdmin } = useUser();
+
+  // Animación del carrito cuando sube la cantidad.
+  const [bump, setBump] = useState(false);
+  const prevCount = useRef(count);
+  useEffect(() => {
+    if (count > prevCount.current) {
+      setBump(true);
+      const t = setTimeout(() => setBump(false), 420);
+      prevCount.current = count;
+      return () => clearTimeout(t);
+    }
+    prevCount.current = count;
+  }, [count]);
 
   const nombre =
     (user?.user_metadata?.nombre as string | undefined) ?? user?.email ?? null;
@@ -96,7 +109,13 @@ export function SiteHeader() {
           )}
           {user ? (
             <div className="hidden items-center gap-3 lg:flex">
-              <span className="text-[13.5px] font-medium">Hola, {primerNombre}</span>
+              <Link
+                href="/cuenta"
+                className="inline-flex items-center gap-1.5 text-[13.5px] font-medium transition-colors hover:text-morado"
+              >
+                <User className="size-[15px]" />
+                Hola, {primerNombre}
+              </Link>
               <button
                 type="button"
                 onClick={salir}
@@ -110,16 +129,23 @@ export function SiteHeader() {
               Iniciar sesión
             </Link>
           )}
-          <Link href="/entrar" aria-label="Mi cuenta" className="lg:hidden">
+          <Link href={user ? "/cuenta" : "/entrar"} aria-label="Mi cuenta" className="lg:hidden">
             <User className="size-[17px]" />
           </Link>
           <button type="button" aria-label="Buscar">
             <Search className="size-[17px]" />
           </button>
           <Link href="/carrito" aria-label="Carrito" className="relative">
-            <ShoppingBag className="size-[17px]" />
+            <ShoppingBag
+              className={cn("size-[17px] transition-transform", bump && "animate-cart-bump")}
+            />
             {count > 0 && (
-              <span className="absolute -right-2 -top-2 grid size-[14px] place-items-center rounded-full bg-dorado text-[9px] font-semibold text-blanco">
+              <span
+                className={cn(
+                  "absolute -right-2 -top-2 grid size-[14px] place-items-center rounded-full bg-dorado text-[9px] font-semibold text-blanco",
+                  bump && "animate-cart-bump",
+                )}
+              >
                 {count}
               </span>
             )}
@@ -141,6 +167,15 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            {user && (
+              <Link
+                href="/cuenta"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-between border-b border-tinta/[0.07] py-3 font-display text-[19px] text-tinta"
+              >
+                Mi cuenta
+              </Link>
+            )}
             {esAdmin && (
               <Link
                 href="/admin"
