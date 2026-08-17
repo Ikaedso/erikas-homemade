@@ -251,6 +251,10 @@ de página. El objetivo es una experiencia limpia y amena, con la marca presente
 
 ## 12. Brief para Claude Design (prompt base)
 
+> **El prompt final listo para copiar** — junto con la recomendación de plantilla (`Color + type
+> pairing` → `UI mockups`) y de capturas — vive en
+> [`docs/prompt-claude-design.md`](prompt-claude-design.md). Resumen del brief a continuación.
+
 > Diseña la interfaz de **Erika's Homemade**, una tienda online de ropa y bisutería hecha a mano
 > con módulo de **servicios de costura y agenda de citas**.
 >
