@@ -8,6 +8,7 @@ import { ChevronRight, LogOut, Menu, Search, ShoppingBag, User, X } from "lucide
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "./nav-items";
 import { useCart } from "@/components/cart/cart-provider";
+import { SearchDialog } from "@/components/search/search-dialog";
 import { useUser } from "@/lib/auth/use-user";
 import { createClient } from "@/lib/supabase/client";
 
@@ -33,6 +34,7 @@ function Logo() {
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [buscando, setBuscando] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { count } = useCart();
@@ -132,7 +134,12 @@ export function SiteHeader() {
           <Link href={user ? "/cuenta" : "/entrar"} aria-label="Mi cuenta" className="lg:hidden">
             <User className="size-[17px]" />
           </Link>
-          <button type="button" aria-label="Buscar">
+          <button
+            type="button"
+            aria-label="Buscar"
+            onClick={() => setBuscando(true)}
+            className="transition-colors hover:text-moradoHondo"
+          >
             <Search className="size-[17px]" />
           </button>
           <Link href="/carrito" aria-label="Carrito" className="relative">
@@ -256,6 +263,8 @@ export function SiteHeader() {
           </nav>
         </div>
       </div>
+
+      <SearchDialog open={buscando} onClose={() => setBuscando(false)} />
     </header>
   );
 }
