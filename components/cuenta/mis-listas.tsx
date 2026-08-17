@@ -38,7 +38,7 @@ function Chips<T extends string>({
   onChange: (v: T | "todos") => void;
 }) {
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
+    <div className="mt-3 flex flex-wrap gap-1.5">
       {opciones.map((o) => {
         const activo = valor === o.key;
         return (
@@ -48,20 +48,40 @@ function Chips<T extends string>({
             onClick={() => onChange(o.key)}
             aria-pressed={activo}
             className={cn(
-              "rounded-pill border px-3 py-1.5 text-[12.5px] font-medium transition-colors",
+              "rounded-pill border px-2.5 py-1 text-[12px] font-medium transition-colors",
               activo
                 ? "border-morado bg-morado text-blanco"
                 : "border-tinta/[0.14] text-tinta/70 hover:bg-lavanda/60",
             )}
           >
             {o.label}
-            <span className={cn("ml-1.5 tabular-nums", activo ? "text-blanco/70" : "text-tinta/40")}>
+            <span className={cn("ml-1 tabular-nums", activo ? "text-blanco/70" : "text-tinta/40")}>
               {o.count}
             </span>
           </button>
         );
       })}
     </div>
+  );
+}
+
+function Panel({
+  titulo,
+  total,
+  children,
+}: {
+  titulo: string;
+  total: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-[14px] border border-tinta/[0.09] bg-blanco p-4 lg:p-5">
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-display text-[18px] text-moradoHondo">{titulo}</h2>
+        <span className="text-[12px] tabular-nums text-tinta/45">{total}</span>
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -98,85 +118,87 @@ export function MisListas({ pedidos, citas }: { pedidos: Pedido[]; citas: CitaCo
 
   return (
     <>
-      {/* Pedidos */}
-      <section className="mt-8">
-        <h2 className="font-display text-[20px] text-moradoHondo">Mis pedidos</h2>
-        {pedidos.length === 0 ? (
-          <p className="mt-3 text-[13px] text-tinta/60">Aún no tienes pedidos.</p>
-        ) : (
-          <>
-            {opcPedidos.length > 2 && (
-              <Chips opciones={opcPedidos} valor={fPedido} onChange={setFPedido} />
-            )}
-            {pedidosVis.length === 0 ? (
-              <p className="mt-4 text-[13px] text-tinta/55">No hay pedidos en ese estado.</p>
-            ) : (
-              <ul className="mt-4 space-y-3">
-                {pedidosVis.map((p) => (
-                  <li key={p.id}>
-                    <Link
-                      href={`/pedido/${p.id}`}
-                      className="flex items-center justify-between gap-4 rounded-[12px] border border-tinta/[0.09] bg-blanco p-4 transition-colors hover:bg-nieve"
-                    >
-                      <div>
-                        <p className="font-display text-[16px] text-moradoHondo">
-                          #EH-{String(p.numero).padStart(4, "0")}
-                        </p>
-                        <p className="mt-0.5 text-[12px] text-tinta/55">
-                          {formatFecha(p.creado_en)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span className="font-display text-[16px] text-tinta">
-                          {formatCOP(p.total_cop)}
-                        </span>
-                        <Badge variant="neutro">{PEDIDO_LABEL[p.estado]}</Badge>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
-        )}
-      </section>
+      <div className="mt-8 grid items-start gap-5 lg:grid-cols-2 lg:gap-6">
+        {/* Pedidos */}
+        <Panel titulo="Mis pedidos" total={pedidos.length}>
+          {pedidos.length === 0 ? (
+            <p className="mt-3 text-[13px] text-tinta/60">Aún no tienes pedidos.</p>
+          ) : (
+            <>
+              {opcPedidos.length > 2 && (
+                <Chips opciones={opcPedidos} valor={fPedido} onChange={setFPedido} />
+              )}
+              {pedidosVis.length === 0 ? (
+                <p className="mt-4 text-[13px] text-tinta/55">No hay pedidos en ese estado.</p>
+              ) : (
+                <ul className="mt-3 max-h-[24rem] divide-y divide-tinta/[0.07] overflow-y-auto pr-1">
+                  {pedidosVis.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        href={`/pedido/${p.id}`}
+                        className="-mx-2 flex items-center justify-between gap-3 rounded-[8px] px-2 py-3 transition-colors hover:bg-nieve"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-medium text-[14px] text-moradoHondo">
+                            #EH-{String(p.numero).padStart(4, "0")}
+                          </p>
+                          <p className="mt-0.5 text-[12px] text-tinta/50">
+                            {formatFecha(p.creado_en)}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-3">
+                          <span className="font-display text-[15px] text-tinta">
+                            {formatCOP(p.total_cop)}
+                          </span>
+                          <Badge variant="neutro">{PEDIDO_LABEL[p.estado]}</Badge>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+        </Panel>
 
-      {/* Citas */}
-      <section className="mt-10">
-        <h2 className="font-display text-[20px] text-moradoHondo">Mis citas</h2>
-        {citas.length === 0 ? (
-          <p className="mt-3 text-[13px] text-tinta/60">Aún no tienes citas agendadas.</p>
-        ) : (
-          <>
-            {opcCitas.length > 2 && <Chips opciones={opcCitas} valor={fCita} onChange={setFCita} />}
-            {citasVis.length === 0 ? (
-              <p className="mt-4 text-[13px] text-tinta/55">No hay citas en ese estado.</p>
-            ) : (
-              <ul className="mt-4 space-y-3">
-                {citasVis.map((c) => (
-                  <li
-                    key={c.id}
-                    className="flex items-center justify-between gap-4 rounded-[12px] border border-tinta/[0.09] bg-blanco p-4"
-                  >
-                    <div>
-                      <p className="font-display text-[16px] text-moradoHondo">
-                        {c.servicios?.nombre ?? "Servicio"}
-                      </p>
-                      <p className="mt-0.5 text-[12px] text-tinta/55">
-                        {formatFecha(c.inicia_en)} · {formatHora(c.inicia_en)}
-                      </p>
-                    </div>
-                    <Badge variant="neutro">{CITA_LABEL[c.estado]}</Badge>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
-        )}
-      </section>
+        {/* Citas */}
+        <Panel titulo="Mis citas" total={citas.length}>
+          {citas.length === 0 ? (
+            <p className="mt-3 text-[13px] text-tinta/60">Aún no tienes citas agendadas.</p>
+          ) : (
+            <>
+              {opcCitas.length > 2 && (
+                <Chips opciones={opcCitas} valor={fCita} onChange={setFCita} />
+              )}
+              {citasVis.length === 0 ? (
+                <p className="mt-4 text-[13px] text-tinta/55">No hay citas en ese estado.</p>
+              ) : (
+                <ul className="mt-3 max-h-[24rem] divide-y divide-tinta/[0.07] overflow-y-auto pr-1">
+                  {citasVis.map((c) => (
+                    <li
+                      key={c.id}
+                      className="flex items-center justify-between gap-3 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-[14px] text-moradoHondo">
+                          {c.servicios?.nombre ?? "Servicio"}
+                        </p>
+                        <p className="mt-0.5 text-[12px] text-tinta/50">
+                          {formatFecha(c.inicia_en)} · {formatHora(c.inicia_en)}
+                        </p>
+                      </div>
+                      <Badge variant="neutro">{CITA_LABEL[c.estado]}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+        </Panel>
+      </div>
 
       {pedidos.length === 0 && citas.length === 0 && (
-        <div className="mt-8">
+        <div className="mt-6">
           <Button asChild size="lg">
             <Link href="/mujer">Ver el catálogo</Link>
           </Button>
