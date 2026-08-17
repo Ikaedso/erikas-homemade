@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Stitch } from "@/components/brand/stitch";
+import { CategoryCard } from "@/components/tienda/category-card";
+import { ProductCard } from "@/components/tienda/product-card";
+import { getDestacados } from "@/lib/data/catalogo";
 
 const CATEGORIAS = [
   { nombre: "Mujer", href: "/mujer", nota: "Blusas · Vestidos · Bisutería" },
@@ -9,7 +12,9 @@ const CATEGORIAS = [
   { nombre: "Manualidades", href: "/manualidades", nota: "Piezas únicas", destacada: true },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const destacados = await getDestacados(4);
+
   return (
     <>
       {/* Hero */}
@@ -45,21 +50,27 @@ export default function HomePage() {
 
         <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
           {CATEGORIAS.map((cat) => (
-            <Link
-              key={cat.href}
-              href={cat.href}
-              className={`group relative flex aspect-[3/4] flex-col justify-end overflow-hidden rounded-[10px] bg-gradient-to-t from-moradoHondo via-morado/70 to-morado/30 p-4 ${
-                cat.destacada ? "ring-1 ring-dorado/40" : ""
-              }`}
-            >
-              <p className="eyebrow text-doradoClaro">{cat.nota}</p>
-              <p className="mt-1 font-display text-[19px] text-blanco lg:text-[27px]">
-                {cat.nombre}
-              </p>
-            </Link>
+            <CategoryCard key={cat.href} {...cat} />
           ))}
         </div>
       </section>
+
+      {/* Destacados (solo si hay datos) */}
+      {destacados.length > 0 && (
+        <section className="mx-auto max-w-[1440px] px-4 pb-16 lg:px-14 lg:pb-20">
+          <div className="flex items-end justify-between">
+            <h2 className="font-display text-[24px] text-moradoHondo lg:text-[32px]">Destacados</h2>
+            <Link href="/mujer" className="text-[13px] font-medium text-morado hover:underline">
+              Ver todo
+            </Link>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
+            {destacados.map((p) => (
+              <ProductCard key={p.id} producto={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Taller de costura */}
       <section className="bg-moradoHondo text-blanco">
