@@ -134,14 +134,23 @@ export function AddToCartControls({
           className="flex-1"
           size="lg"
           onClick={() => {
+            const variante =
+              variantes.find((v) => v.talla === talla && v.color === color) ??
+              variantes.find((v) => v.talla === talla) ??
+              variantes[0];
+            if (!variante) {
+              setAviso("Selecciona una opción disponible.");
+              return;
+            }
             add(
               {
                 productoId: producto.id,
+                varianteId: variante.id,
                 slug: producto.slug,
                 nombre: producto.nombre,
                 precioCop: producto.precio_cop,
-                talla: talla ?? "Única",
-                color: color ?? "Único",
+                talla: variante.talla,
+                color: variante.color,
                 esPiezaUnica,
               },
               cantidad,
