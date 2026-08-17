@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
 import { crearProducto, actualizarProducto, type ProductoInput } from "@/actions/admin";
 import type { Categoria, Subcategoria } from "@/lib/data/types";
 
@@ -32,6 +33,8 @@ export function ProductoForm({
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [guardado, setGuardado] = useState(false);
+  const [foto, setFoto] = useState<File | null>(null);
+  const [previewFoto, setPreviewFoto] = useState<string | null>(null);
 
   // El aviso de "guardado" se desvanece solo tras unos segundos.
   useEffect(() => {
@@ -39,6 +42,17 @@ export function ProductoForm({
     const t = setTimeout(() => setGuardado(false), 3200);
     return () => clearTimeout(t);
   }, [guardado]);
+
+  // Vista previa de la foto elegida al crear.
+  useEffect(() => {
+    if (!foto) {
+      setPreviewFoto(null);
+      return;
+    }
+    const url = URL.createObjectURL(foto);
+    setPreviewFoto(url);
+    return () => URL.revokeObjectURL(url);
+  }, [foto]);
 
   const subsDeCategoria = subcategorias.filter((s) => s.categoria_id === categoriaId);
 
@@ -54,6 +68,18 @@ export function ProductoForm({
       es_pieza_unica: piezaUnica,
       aviso_stock_bajo: Math.max(0, Math.round(Number(avisoStock) || 0)),
     };
+    // Valida la foto antes de crear (para no dejar un producto a medias).
+    if (modo === "nuevo" && foto) {
+      if (!foto.type.startsWith("image/")) {
+        setError("El archivo debe ser una imagen.");
+        return;
+      }
+      if (foto.size > 5 * 1024 * 1024) {
+        setError("La imagen no puede pesar más de 5 MB.");
+        return;
+      }
+    }
+
     setGuardando(true);
     if (modo === "nuevo") {
       const res = await crearProducto(input);
@@ -61,6 +87,18 @@ export function ProductoForm({
         setError(res.error);
         setGuardando(false);
         return;
+      }
+      // Sube la foto elegida (si hay) y la registra como principal.
+      if (foto) {
+        const supabase = createClient();
+        const limpio = foto.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${res.id}/${Date.now()}-${limpio}`;
+        const { error: upErr } = await supabase.storage.from("productos").upload(path, foto);
+        if (!upErr) {
+          await supabase
+            .from("fotos_producto")
+            .insert({ producto_id: res.id, path, orden: 0 });
+        }
       }
       router.push(`/admin/productos/${res.id}`);
     } else if (inicial?.id) {
@@ -160,6 +198,51 @@ export function ProductoForm({
           />
           <span className="text-[13px] text-tinta">Marcar como pieza única</span>
         </label>
+
+        {/* Foto de portada (solo al crear; luego se gestionan en "Fotos") */}
+        {modo === "nuevo" && (
+          <div>
+            <span className="mb-1.5 block text-[12px] font-medium text-tinta/70">
+              Foto principal <span className="font-normal text-tinta/45">(opcional)</span>
+            </span>
+            {foto && previewFoto ? (
+              <div className="flex items-center gap-3 rounded-[12px] border border-morado/20 bg-blanco p-2.5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={previewFoto}
+                  alt="Vista previa"
+                  className="size-16 shrink-0 rounded-[8px] object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-medium text-moradoHondo">{foto.name}</p>
+                  <p className="text-[11px] text-tinta/50">{(foto.size / 1024).toFixed(0)} KB</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFoto(null)}
+                  aria-label="Quitar foto"
+                  className="grid size-8 shrink-0 place-items-center rounded-full text-tinta/50 transition-colors hover:bg-lavanda hover:text-[#B23A5B]"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-[12px] border border-dashed border-morado/40 py-4 text-[13px] font-medium text-morado transition-colors hover:bg-lavanda/50">
+                <ImagePlus className="size-4" />
+                Elegir imagen
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFoto(e.target.files?.[0] ?? null)}
+                  className="hidden"
+                />
+              </label>
+            )}
+            <p className="mt-1.5 text-[11px] text-tinta/45">
+              Será la imagen que aparezca en la tienda. Podrás agregar más después.
+            </p>
+          </div>
+        )}
 
         {error && <p className="text-[13px] text-[#B23A5B]">{error}</p>}
         {guardado && (

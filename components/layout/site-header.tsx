@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import { ChevronRight, LogOut, Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "./nav-items";
 import { useCart } from "@/components/cart/cart-provider";
@@ -167,66 +167,90 @@ export function SiteHeader() {
             !open && "pointer-events-none",
           )}
         >
-          <nav className="mx-auto flex max-w-[1440px] flex-col px-4 py-2">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-between border-b border-tinta/[0.07] py-3 font-display text-[19px] text-tinta last:border-none"
-              >
-                {item.label}
-              </Link>
-            ))}
-            {user && (
-              <Link
-                href="/cuenta"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-between border-b border-tinta/[0.07] py-3 font-display text-[19px] text-tinta"
-              >
-                Mi cuenta
-              </Link>
-            )}
-            {esAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-between border-b border-tinta/[0.07] py-3 font-display text-[19px] text-dorado"
-              >
-                Panel de Érika
-              </Link>
-            )}
-            <div className="mt-3 flex gap-2 pb-2">
+          <nav className="mx-auto max-w-[1440px] px-3 pb-4 pt-2">
+            {/* Enlaces */}
+            <ul className="flex flex-col gap-0.5">
+              {NAV_ITEMS.map((item) => {
+                const active = pathname === item.href;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-center justify-between rounded-[10px] px-3 py-2.5 text-[15px] transition-colors",
+                        active
+                          ? "bg-lavanda font-medium text-moradoHondo"
+                          : "text-tinta hover:bg-lavanda/50",
+                      )}
+                    >
+                      {item.label}
+                      <ChevronRight className="size-4 text-tinta/25" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Cuenta */}
+            <div className="mt-3 border-t border-tinta/[0.08] pt-3">
               {user ? (
-                <>
-                  <span className="flex-1 py-2.5 text-[13px] font-medium text-tinta">
-                    Hola, {primerNombre}
-                  </span>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3 px-3 py-1.5">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-lavanda text-morado">
+                      <User className="size-[18px]" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[14px] font-medium text-tinta">
+                        Hola, {primerNombre}
+                      </p>
+                      <p className="text-[11px] text-tinta/50">Bienvenida de nuevo</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/cuenta"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-between rounded-[10px] px-3 py-2.5 text-[14px] font-medium text-tinta transition-colors hover:bg-lavanda/50"
+                  >
+                    Mi cuenta
+                    <ChevronRight className="size-4 text-tinta/25" />
+                  </Link>
+                  {esAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-between rounded-[10px] bg-dorado/10 px-3 py-2.5 text-[14px] font-medium text-dorado transition-colors hover:bg-dorado/15"
+                    >
+                      Panel de Érika
+                      <ChevronRight className="size-4 text-dorado/50" />
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={salir}
-                    className="flex-1 rounded-pill border border-tinta/15 py-2.5 text-center text-[13px] font-medium text-tinta"
+                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-pill border border-tinta/15 py-2.5 text-[14px] font-medium text-tinta transition-colors hover:bg-lavanda/40"
                   >
-                    Salir
+                    <LogOut className="size-4" />
+                    Cerrar sesión
                   </button>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex flex-col gap-2 px-1">
                   <Link
                     href="/registro"
                     onClick={() => setOpen(false)}
-                    className="flex-1 rounded-pill bg-morado py-2.5 text-center text-[13px] font-medium text-blanco"
+                    className="rounded-pill bg-morado py-3 text-center text-[14px] font-medium text-blanco transition-colors hover:bg-moradoHondo"
                   >
                     Registrarme
                   </Link>
                   <Link
                     href="/entrar"
                     onClick={() => setOpen(false)}
-                    className="flex-1 rounded-pill border border-tinta/15 py-2.5 text-center text-[13px] font-medium text-tinta"
+                    className="rounded-pill border border-tinta/15 py-3 text-center text-[14px] font-medium text-tinta transition-colors hover:bg-lavanda/40"
                   >
-                    Entrar
+                    Ya tengo cuenta
                   </Link>
-                </>
+                </div>
               )}
             </div>
           </nav>

@@ -39,6 +39,7 @@ export default async function CategoriaPage({
   searchParams: Promise<Search>;
 }) {
   const { categoria: slug } = await params;
+  if (slug === "manualidades") notFound(); // categoría retirada por ahora
   const { sub: subActivo, disp } = await searchParams;
   const dispActivo = disp === "1";
 

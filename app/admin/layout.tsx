@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <AdminNav />
           </div>
         </aside>
-        <div className="mt-6 lg:mt-0">{children}</div>
+        <div className="mt-6 min-w-0 overflow-x-clip lg:mt-0">{children}</div>
       </div>
     </div>
   );
