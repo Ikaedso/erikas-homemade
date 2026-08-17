@@ -1,6 +1,9 @@
 "use server";
 
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { enviarCorreo, hayEmail, plantillaCorreo } from "@/lib/email";
+import { formatFecha, formatHora } from "@/lib/format";
 
 export type CrearCitaResult = { ok: true; citaId: string } | { ok: false; error: string };
 
@@ -34,7 +37,7 @@ export async function crearCita(
 
   const { data: servicio } = await supabase
     .from("servicios")
-    .select("duracion_min, activo")
+    .select("nombre, duracion_min, activo")
     .eq("id", servicioId)
     .maybeSingle();
   if (!servicio || !servicio.activo) return { ok: false, error: "Ese servicio no está disponible." };
@@ -76,6 +79,32 @@ export async function crearCita(
       return { ok: false, error: "Ese horario acaba de ocuparse. Elige otro." };
     }
     return { ok: false, error: "No pudimos agendar la cita. Intenta de nuevo." };
+  }
+
+  // Correo de confirmación al cliente (después de responder, sin bloquear).
+  if (hayEmail() && user.email) {
+    const to = user.email;
+    const nombreServicio = servicio.nombre as string;
+    const cuando = `${formatFecha(iniciaEnISO)} · ${formatHora(iniciaEnISO)}`;
+    after(() =>
+      enviarCorreo({
+        to,
+        subject: `Recibimos tu cita — ${nombreServicio}`,
+        html: plantillaCorreo(
+          "¡Tu cita quedó agendada!",
+          `<p style="margin:0 0 12px;font-size:14px;color:#2E2438;line-height:1.6">
+             Recibimos tu solicitud de cita para <strong>${nombreServicio}</strong>.
+           </p>
+           <p style="margin:0 0 12px;font-size:14px;color:#2E2438;line-height:1.6">
+             Fecha y hora: <strong style="color:#5B2A86">${cuando}</strong>
+           </p>
+           <p style="margin:0;font-size:14px;color:#2E2438;line-height:1.6">
+             Tu cita queda <strong>pendiente</strong> hasta que Érika la confirme por WhatsApp.
+             Te avisaremos por correo cuando cambie de estado.
+           </p>`,
+        ),
+      }),
+    );
   }
 
   return { ok: true, citaId: data.id };
