@@ -96,6 +96,7 @@ export default async function ProductoPage({ params }: { params: Promise<Params>
 
           <div className="mt-6">
             <AddToCartControls
+              producto={producto}
               variantes={variantes}
               disponible={producto.disponible}
               esPiezaUnica={producto.es_pieza_unica}

@@ -4,21 +4,25 @@ import { useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { VariantePublica } from "@/lib/data/types";
+import { useCart } from "@/components/cart/cart-provider";
+import type { ProductoPublico, VariantePublica } from "@/lib/data/types";
 
 function unicos<T>(arr: T[]): T[] {
   return Array.from(new Set(arr));
 }
 
 export function AddToCartControls({
+  producto,
   variantes,
   disponible,
   esPiezaUnica,
 }: {
+  producto: Pick<ProductoPublico, "id" | "slug" | "nombre" | "precio_cop">;
   variantes: VariantePublica[];
   disponible: boolean;
   esPiezaUnica: boolean;
 }) {
+  const { add } = useCart();
   const tallas = useMemo(() => unicos(variantes.map((v) => v.talla)), [variantes]);
   const colores = useMemo(() => unicos(variantes.map((v) => v.color)), [variantes]);
 
@@ -129,7 +133,21 @@ export function AddToCartControls({
         <Button
           className="flex-1"
           size="lg"
-          onClick={() => setAviso("Añadido (demo). El carrito se conecta en la próxima fase.")}
+          onClick={() => {
+            add(
+              {
+                productoId: producto.id,
+                slug: producto.slug,
+                nombre: producto.nombre,
+                precioCop: producto.precio_cop,
+                talla: talla ?? "Única",
+                color: color ?? "Único",
+                esPiezaUnica,
+              },
+              cantidad,
+            );
+            setAviso("Añadido al carrito.");
+          }}
         >
           Agregar al carrito
         </Button>

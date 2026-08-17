@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { fontBody, fontDisplay } from "@/lib/fonts";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { CartProvider } from "@/components/cart/cart-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${fontDisplay.variable} ${fontBody.variable}`}>
       <body className="flex min-h-dvh flex-col">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <CartProvider>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </CartProvider>
       </body>
     </html>
   );

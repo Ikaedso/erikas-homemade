@@ -41,8 +41,11 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // Rutas del panel: exigen sesión (el rol admin se valida en las Server Actions).
-  if (path.startsWith("/admin") && !user) {
+  // Rutas que exigen sesión (el rol admin se valida además en las Server Actions).
+  const protegidas = ["/admin", "/pagar", "/cuenta"];
+  const requiereSesion = protegidas.some((p) => path === p || path.startsWith(`${p}/`));
+
+  if (requiereSesion && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/entrar";
     url.searchParams.set("next", path);
