@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * existe la cookie de sesión. La autorización real vive en RLS + Server Actions.
  */
 
-const PROTEGIDAS = ["/admin", "/pagar", "/cuenta"];
+const PROTEGIDAS = ["/admin", "/pagar", "/cuenta", "/agendar"];
 
 function tieneSesion(request: NextRequest): boolean {
   return request.cookies.getAll().some((c) => {
