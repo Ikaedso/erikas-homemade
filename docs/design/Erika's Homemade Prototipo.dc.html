@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"><style>body{margin:0;background:#EFEBF2;font-family:'Work Sans',system-ui,sans-serif}a{color:#5B2A86;text-decoration-color:#B98A2E}a:hover{color:#3A1857}</style></helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:20px;padding:34px 20px 44px;box-sizing:border-box">
+  <div style="width:390px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
+    <div>
+      <div style="font:500 21px/1.25 'Lora',serif;color:#2E2438">Flujo de compra</div>
+      <div style="font:400 11.5px/1.5 'Work Sans';color:rgba(46,36,56,.55);margin-top:5px">Catálogo → producto → carrito → cuenta → pago</div>
+    </div>
+    <button onClick="{{ reiniciar }}" style="background:#fff;border:1px solid rgba(46,36,56,.18);color:#2E2438;font:500 11.5px/1 'Work Sans';padding:10px 15px;border-radius:999px;cursor:pointer;flex:none" style-hover="border-color:#5B2A86;color:#5B2A86">Reiniciar</button>
+  </div>
+
+  <div style="width:390px;height:800px;background:#fff;border:1px solid rgba(46,36,56,.14);border-radius:30px;box-shadow:0 18px 44px rgba(58,24,87,.14);overflow:hidden;display:flex;flex-direction:column;color:#2E2438">
+    <div style="display:flex;justify-content:space-between;padding:11px 22px 6px;font:600 11px/1 'Work Sans';flex:none"><span>9:41</span><span style="color:rgba(46,36,56,.5)">100%</span></div>
+
+    <sc-if value="{{ enCatalogo }}" hint-placeholder-val="{{ true }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid rgba(46,36,56,.08);flex:none">
+        <div style="display:flex;align-items:center;gap:8px"><img src="img/logo.png" alt="Erika's Homemade" style="height:34px;width:auto;object-fit:contain"><span style="font:500 14px/1.1 'Lora',serif">Erika's<br>Homemade</span></div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.5"><circle cx="8" cy="8" r="5.2"></circle><line x1="12" y1="12" x2="16" y2="16"></line></svg>
+          <div onClick="{{ verCarrito }}" style="position:relative;cursor:pointer"><svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.5"><rect x="3.5" y="6" width="11" height="9.5" rx="1.6"></rect><path d="M6.4 6.2V4.8a2.6 2.6 0 0 1 5.2 0v1.4"></path></svg><span style="position:absolute;top:-4px;right:-5px;min-width:14px;height:14px;border-radius:7px;background:#B98A2E;color:#fff;font:600 9px/14px 'Work Sans';text-align:center">{{ conteo }}</span></div>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0">
+        <div style="padding:16px 16px 0;font:400 10.5px/1 'Work Sans';color:rgba(46,36,56,.45)">Inicio / Colecciones / <span style="color:#5B2A86">Mujer</span></div>
+        <div style="padding:14px 16px 0;text-align:center"><div style="font:500 29px/1.15 'Lora',serif">Mujer</div><div style="font:400 12px/1.5 'Work Sans';color:rgba(46,36,56,.55);margin-top:8px">38 piezas hechas a mano</div></div>
+        <div style="display:flex;gap:8px;padding:20px 16px 0;overflow:hidden">
+          <span style="font:500 12px/1 'Work Sans';padding:10px 14px;border-radius:999px;background:#5B2A86;color:#fff;white-space:nowrap">Todo</span>
+          <span style="font:400 12px/1 'Work Sans';padding:10px 14px;border-radius:999px;border:1px solid rgba(46,36,56,.16);white-space:nowrap">Blusas</span>
+          <span style="font:400 12px/1 'Work Sans';padding:10px 14px;border-radius:999px;border:1px solid rgba(46,36,56,.16);white-space:nowrap">Camisas unisex</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;margin-top:6px;border-top:1px solid rgba(46,36,56,.07);border-bottom:1px solid rgba(46,36,56,.07)">
+          <span style="display:flex;align-items:center;gap:8px;border:1px solid rgba(46,36,56,.16);border-radius:999px;padding:10px 15px;font:500 12px/1 'Work Sans'"><svg width="14" height="12" viewBox="0 0 14 12" fill="none" stroke="#5B2A86" stroke-width="1.5"><line x1="1" y1="3" x2="13" y2="3"></line><line x1="3" y1="9" x2="11" y2="9"></line></svg>Filtrar</span>
+          <span style="font:400 12px/1 'Work Sans';color:rgba(46,36,56,.55)">Más recientes</span>
+        </div>
+        <div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">
+          <sc-for list="{{ productos }}" as="p" hint-placeholder-count="4">
+            <div onClick="{{ p.abrir }}" style="cursor:pointer">
+              <div style="position:relative;aspect-ratio:4/5;border-radius:8px;overflow:hidden;background:#F7F4F9"><img src="{{ p.img }}" alt="{{ p.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"><span style="position:absolute;top:8px;left:8px;font:500 9px/1 'Work Sans';letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:3px;background:{{ p.badgeBg }};color:{{ p.badgeFg }}">{{ p.badge }}</span></div>
+              <div style="font:500 13.5px/1.3 'Lora',serif;margin-top:9px">{{ p.nombre }}</div>
+              <div style="font:400 10.5px/1 'Work Sans';color:rgba(46,36,56,.45);margin-top:5px">{{ p.categoria }}</div>
+              <div style="font:500 12.5px/1 'Work Sans';margin-top:6px">{{ p.precio }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:8px 16px 30px;text-align:center;font:400 11px/1.6 'Work Sans';color:rgba(46,36,56,.45)">Toca una pieza para abrirla</div>
+      </div>
+    </div></sc-if>
+
+    <sc-if value="{{ enProducto }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid rgba(46,36,56,.08);flex:none">
+        <svg onClick="{{ verCatalogo }}" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.6" style="cursor:pointer"><polyline points="11,4 6,9 11,14"></polyline></svg>
+        <span style="font:500 13px/1 'Lora',serif">{{ actual.nombre }}</span>
+        <div onClick="{{ verCarrito }}" style="position:relative;cursor:pointer"><svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.5"><rect x="3.5" y="6" width="11" height="9.5" rx="1.6"></rect><path d="M6.4 6.2V4.8a2.6 2.6 0 0 1 5.2 0v1.4"></path></svg><span style="position:absolute;top:-4px;right:-5px;min-width:14px;height:14px;border-radius:7px;background:#B98A2E;color:#fff;font:600 9px/14px 'Work Sans';text-align:center">{{ conteo }}</span></div>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0">
+        <div style="aspect-ratio:1/1;background:#F7F4F9"><img src="{{ actual.img }}" alt="{{ actual.nombre }}" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+        <div style="padding:20px 18px 0">
+          <div style="font:400 10px/1 'Work Sans';letter-spacing:.18em;text-transform:uppercase;color:#B98A2E">{{ actual.categoria }}</div>
+          <div style="font:500 26px/1.25 'Lora',serif;margin-top:10px">{{ actual.nombre }}</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:14px">
+            <span style="font:500 26px/1 'Lora',serif">{{ actual.precio }}</span>
+            <span style="font:500 10px/1 'Work Sans';letter-spacing:.08em;text-transform:uppercase;padding:7px 11px;border-radius:4px;background:{{ actual.badgeBg }};color:{{ actual.badgeFg }}">{{ actual.badge }}</span>
+          </div>
+          <p style="font:400 13.5px/1.72 'Work Sans';color:rgba(46,36,56,.72);margin:16px 0 0;text-wrap:pretty">{{ actual.descripcion }}</p>
+          <div style="font:600 10px/1 'Work Sans';letter-spacing:.16em;text-transform:uppercase;color:rgba(46,36,56,.5);margin:24px 0 11px">Talla</div>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ tallas }}" as="t" hint-placeholder-count="4">
+              <span onClick="{{ t.elegir }}" style="width:46px;height:42px;border-radius:8px;border:{{ t.borde }};background:{{ t.fondo }};display:grid;place-items:center;font:500 13px 'Work Sans';cursor:pointer">{{ t.label }}</span>
+            </sc-for>
+          </div>
+          <div style="display:flex;align-items:center;gap:11px;margin-top:22px;padding:13px 14px;border:1px dashed #B98A2E;border-radius:9px">
+            <img src="img/logo.png" alt="" style="width:34px;height:34px;flex:none;object-fit:contain">
+            <span style="font:400 12px/1.55 'Work Sans';color:rgba(46,36,56,.7)">Hecha por Érika. Si necesita ajuste de talla, se hace gratis en el taller.</span>
+          </div>
+          <div style="height:22px"></div>
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(46,36,56,.08);padding:13px 16px 16px;flex:none">
+        <sc-if value="{{ actual.disponible }}" hint-placeholder-val="{{ true }}"><button onClick="{{ agregar }}" style="width:100%;border:0;background:#5B2A86;color:#fff;font:500 14px/1 'Work Sans';padding:17px 0;border-radius:999px;cursor:pointer" style-hover="background:#3A1857">Agregar al carrito · {{ actual.precio }}</button></sc-if>
+        <sc-if value="{{ actual.agotado }}"><button style="width:100%;border:0;background:rgba(46,36,56,.09);color:rgba(46,36,56,.42);font:500 14px/1 'Work Sans';padding:17px 0;border-radius:999px">Agotado</button></sc-if>
+      </div>
+    </div></sc-if>
+
+    <sc-if value="{{ enCarrito }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(46,36,56,.08);flex:none">
+        <svg onClick="{{ verCatalogo }}" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.6" style="cursor:pointer"><polyline points="11,4 6,9 11,14"></polyline></svg>
+        <span style="font:500 18px/1 'Lora',serif">Tu carrito</span>
+        <span style="font:400 12px/1 'Work Sans';color:rgba(46,36,56,.5)">{{ conteoTexto }}</span>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0">
+        <sc-if value="{{ carritoVacio }}"><div style="padding:70px 30px;text-align:center">
+          <div style="width:56px;height:56px;margin:0 auto;border-radius:50%;border:1px dashed #B98A2E;display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.4"><rect x="3.5" y="6" width="11" height="9.5" rx="1.6"></rect><path d="M6.4 6.2V4.8a2.6 2.6 0 0 1 5.2 0v1.4"></path></svg></div>
+          <div style="font:500 20px/1.35 'Lora',serif;margin-top:18px">Todavía no hay nada aquí</div>
+          <p style="font:400 13px/1.7 'Work Sans';color:rgba(46,36,56,.6);margin:10px 0 0">Vuelve al catálogo y toca la pieza que te gustó.</p>
+          <button onClick="{{ verCatalogo }}" style="border:0;background:#5B2A86;color:#fff;font:500 13px/1 'Work Sans';padding:15px 26px;border-radius:999px;margin-top:20px;cursor:pointer">Ver el catálogo</button>
+        </div></sc-if>
+        <sc-if value="{{ carritoConItems }}"><div>
+          <div style="padding:18px 16px 0;display:flex;flex-direction:column;gap:16px">
+            <sc-for list="{{ carrito }}" as="it" hint-placeholder-count="1">
+              <div style="display:flex;gap:12px">
+                <div style="width:82px;height:100px;flex:none;border-radius:7px;overflow:hidden;background:#F7F4F9"><img src="{{ it.img }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+                <div style="flex:1">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="font:500 15px/1.3 'Lora',serif">{{ it.nombre }}</div><span onClick="{{ it.quitar }}" style="font:400 16px/1 'Work Sans';color:rgba(46,36,56,.35);cursor:pointer">×</span></div>
+                  <div style="font:400 11.5px/1.5 'Work Sans';color:rgba(46,36,56,.55);margin-top:5px">Talla {{ it.talla }}</div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+                    <div style="display:flex;align-items:center;gap:12px;border:1px solid rgba(46,36,56,.16);border-radius:999px;padding:7px 12px"><span onClick="{{ it.menos }}" style="font:500 13px/1 'Work Sans';color:#5B2A86;cursor:pointer">−</span><span style="font:500 12px/1 'Work Sans'">{{ it.cantidad }}</span><span onClick="{{ it.mas }}" style="font:500 13px/1 'Work Sans';color:#5B2A86;cursor:pointer">+</span></div>
+                    <span style="font:500 14px/1 'Work Sans'">{{ it.lineaTexto }}</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin:22px 16px 0;background:#F2ECF7;border-radius:10px;padding:18px">
+            <div style="display:flex;justify-content:space-between;font:400 13px/1 'Work Sans';color:rgba(46,36,56,.7)"><span>Subtotal</span><span>{{ totalTexto }}</span></div>
+            <div style="display:flex;justify-content:space-between;font:400 13px/1 'Work Sans';color:rgba(46,36,56,.7);margin-top:11px"><span>Entrega</span><span>Se elige al pagar</span></div>
+            <div style="border-top:1px dashed #B98A2E;margin:14px 0"></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:500 15px/1 'Lora',serif;color:#3A1857">Total</span><span style="font:500 24px/1 'Lora',serif;color:#3A1857">{{ totalTexto }}</span></div>
+          </div>
+          <sc-if value="{{ sinSesion }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:8px;align-items:flex-start;margin:14px 16px 0"><span style="width:15px;height:15px;flex:none;border-radius:50%;border:1px solid #B98A2E;display:grid;place-items:center;font:600 9px/1 'Work Sans';color:#B98A2E;margin-top:1px">i</span><span style="font:400 11.5px/1.55 'Work Sans';color:rgba(46,36,56,.6)">Para completar la compra necesitas iniciar sesión. No hay compra como invitado.</span></div></sc-if>
+          <div style="height:22px"></div>
+        </div></sc-if>
+      </div>
+      <sc-if value="{{ carritoConItems }}"><div style="border-top:1px solid rgba(46,36,56,.08);padding:13px 16px 16px;flex:none"><button onClick="{{ irAPagar }}" style="width:100%;border:0;background:#5B2A86;color:#fff;font:500 14px/1 'Work Sans';padding:17px 0;border-radius:999px;cursor:pointer" style-hover="background:#3A1857">Ir al pago</button></div></sc-if>
+    </div></sc-if>
+
+    <sc-if value="{{ enPuerta }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(46,36,56,.08);flex:none">
+        <svg onClick="{{ verCarrito }}" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="rgba(46,36,56,.45)" stroke-width="1.6" style="cursor:pointer"><polyline points="11,4 6,9 11,14"></polyline></svg>
+        <span style="font:500 18px/1 'Lora',serif;color:rgba(46,36,56,.5)">Pagar</span><span style="width:18px"></span>
+      </div>
+      <div style="flex:1;min-height:0;position:relative">
+        <div style="padding:16px;filter:blur(1.6px);opacity:.4">
+          <div style="height:52px;border:1px solid rgba(46,36,56,.14);border-radius:8px"></div>
+          <div style="height:12px"></div>
+          <div style="height:52px;border:1px solid rgba(46,36,56,.14);border-radius:8px"></div>
+          <div style="height:12px"></div>
+          <div style="height:140px;background:#F2ECF7;border-radius:10px"></div>
+        </div>
+        <div style="margin:-96px 16px 0;position:relative;background:#fff;border:1px solid rgba(46,36,56,.1);border-radius:14px;box-shadow:0 12px 34px rgba(58,24,87,.16);padding:26px 22px 24px;text-align:center">
+          <div style="width:54px;height:54px;margin:0 auto;border-radius:50%;border:1px dashed #B98A2E;display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#5B2A86" stroke-width="1.4"><rect x="4.5" y="9.5" width="13" height="9" rx="2"></rect><path d="M7.5 9.5V7a3.5 3.5 0 0 1 7 0v2.5"></path></svg></div>
+          <div style="font:500 22px/1.32 'Lora',serif;margin-top:16px">Necesitas una cuenta<br>para continuar</div>
+          <p style="font:400 13px/1.7 'Work Sans';color:rgba(46,36,56,.65);margin:12px 0 0;text-wrap:pretty">Érika trabaja por encargo: la cuenta guarda tus tallas, tus pedidos y tus citas de costura.</p>
+          <button onClick="{{ verLogin }}" style="width:100%;border:0;background:#5B2A86;color:#fff;font:500 13.5px/1 'Work Sans';padding:16px 0;border-radius:999px;margin-top:20px;cursor:pointer">Crear mi cuenta</button>
+          <button onClick="{{ verLogin }}" style="width:100%;background:#fff;border:1px solid #5B2A86;color:#5B2A86;font:500 13px/1 'Work Sans';padding:14px 0;border-radius:999px;margin-top:9px;cursor:pointer">Ya tengo cuenta, entrar</button>
+          <div style="border-top:1px dashed rgba(185,138,46,.5);margin:20px 0 0;padding-top:14px;font:400 11.5px/1.5 'Work Sans';color:rgba(46,36,56,.5)">Tu carrito se guarda mientras te registras</div>
+        </div>
+      </div>
+    </div></sc-if>
+
+    <sc-if value="{{ enLogin }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(46,36,56,.08);flex:none">
+        <svg onClick="{{ verCarrito }}" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.6" style="cursor:pointer"><polyline points="11,4 6,9 11,14"></polyline></svg>
+        <span style="font:500 18px/1 'Lora',serif">Tu cuenta</span><span style="width:18px"></span>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0">
+        <div style="padding:18px 22px 0;text-align:center">
+          <img src="img/logo.png" alt="Erika's Homemade" style="width:74px;height:74px;object-fit:contain">
+          <div style="font:500 24px/1.3 'Lora',serif;margin-top:6px">Crea tu cuenta</div>
+          <div style="font:400 12.5px/1.6 'Work Sans';color:rgba(46,36,56,.6);margin-top:8px">Se guarda tu carrito y tus tallas</div>
+        </div>
+        <div style="display:flex;margin:20px 22px 0;background:#F2ECF7;border-radius:999px;padding:4px">
+          <span style="flex:1;text-align:center;font:400 12.5px/1 'Work Sans';padding:11px 0;color:rgba(46,36,56,.55)">Iniciar sesión</span>
+          <span style="flex:1;text-align:center;font:500 12.5px/1 'Work Sans';padding:11px 0;border-radius:999px;background:#fff;color:#3A1857;box-shadow:0 1px 2px rgba(58,24,87,.1)">Crear cuenta</span>
+        </div>
+        <div style="padding:20px 22px 0;display:flex;flex-direction:column;gap:13px">
+          <div><div style="font:500 10.5px/1 'Work Sans';letter-spacing:.08em;text-transform:uppercase;color:rgba(46,36,56,.5);margin-bottom:7px">Nombre</div><div style="border:1px solid rgba(46,36,56,.18);border-radius:8px;padding:14px 13px;font:400 13px/1 'Work Sans';color:rgba(46,36,56,.75)">María González</div></div>
+          <div><div style="font:500 10.5px/1 'Work Sans';letter-spacing:.08em;text-transform:uppercase;color:rgba(46,36,56,.5);margin-bottom:7px">Correo</div><div style="border:1px solid rgba(46,36,56,.18);border-radius:8px;padding:14px 13px;font:400 13px/1 'Work Sans';color:rgba(46,36,56,.75)">maria@correo.com</div></div>
+          <div><div style="font:500 10.5px/1 'Work Sans';letter-spacing:.08em;text-transform:uppercase;color:#5B2A86;margin-bottom:7px">Contraseña</div><div style="border:1px solid #5B2A86;border-radius:8px;padding:14px 13px;font:400 13px/1 'Work Sans';display:flex;justify-content:space-between;box-shadow:0 0 0 3px #F2ECF7"><span style="letter-spacing:.2em;color:rgba(46,36,56,.75)">••••••••</span><span style="font:500 11px/1.3 'Work Sans';color:#5B2A86">Ver</span></div></div>
+          <div><div style="font:500 10.5px/1 'Work Sans';letter-spacing:.08em;text-transform:uppercase;color:rgba(46,36,56,.5);margin-bottom:7px">WhatsApp</div><div style="border:1px solid rgba(46,36,56,.18);border-radius:8px;padding:14px 13px;font:400 13px/1 'Work Sans';color:rgba(46,36,56,.75)">+57 310 555 4433</div></div>
+        </div>
+        <div style="margin:20px 22px 26px;padding:14px;background:#F2ECF7;border-radius:10px;font:400 11.5px/1.65 'Work Sans';color:rgba(46,36,56,.65);text-align:center">Al crear tu cuenta aceptas los términos y la política de privacidad.</div>
+      </div>
+      <div style="border-top:1px solid rgba(46,36,56,.08);padding:13px 16px 16px;flex:none"><button onClick="{{ entrar }}" style="width:100%;border:0;background:#5B2A86;color:#fff;font:500 14px/1 'Work Sans';padding:17px 0;border-radius:999px;cursor:pointer" style-hover="background:#3A1857">Crear cuenta y seguir</button></div>
+    </div></sc-if>
+
+    <sc-if value="{{ enCheckout }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(46,36,56,.08);flex:none">
+        <svg onClick="{{ verCarrito }}" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#5B2A86" stroke-width="1.6" style="cursor:pointer"><polyline points="11,4 6,9 11,14"></polyline></svg>
+        <span style="font:500 18px/1 'Lora',serif">Pagar</span>
+        <span style="font:400 11px/1 'Work Sans';color:#5B2A86">María G.</span>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0">
+        <div style="display:flex;align-items:center;gap:8px;padding:16px 16px 0">
+          <span style="font:500 10px/1 'Work Sans';letter-spacing:.06em;text-transform:uppercase;color:#5B2A86">1 Entrega</span><span style="flex:1;border-top:1px dashed #B98A2E"></span><span style="font:500 10px/1 'Work Sans';letter-spacing:.06em;text-transform:uppercase;color:#5B2A86">2 Pago</span><span style="flex:1;border-top:1px solid rgba(46,36,56,.12)"></span><span style="font:500 10px/1 'Work Sans';letter-spacing:.06em;text-transform:uppercase;color:rgba(46,36,56,.35)">3 Listo</span>
+        </div>
+        <div style="padding:20px 16px 0">
+          <div style="font:500 19px/1.2 'Lora',serif">¿Cómo la recibes?</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">
+            <sc-for list="{{ entregas }}" as="e" hint-placeholder-count="3">
+              <div onClick="{{ e.elegir }}" style="display:flex;align-items:center;gap:12px;border:{{ e.borde }};background:{{ e.fondo }};border-radius:10px;padding:14px;cursor:pointer">
+                <span style="width:17px;height:17px;border-radius:50%;border:{{ e.radio }};background:#fff;flex:none"></span>
+                <div style="flex:1"><div style="font:500 13px/1 'Work Sans'">{{ e.nombre }}</div><div style="font:400 11.5px/1.5 'Work Sans';color:rgba(46,36,56,.6);margin-top:4px">{{ e.detalle }}</div></div>
+                <span style="font:500 12.5px/1 'Work Sans'">{{ e.costoTexto }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding:24px 16px 0">
+          <div style="font:500 19px/1.2 'Lora',serif">Método de pago</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:14px">
+            <sc-for list="{{ pagos }}" as="m" hint-placeholder-count="2">
+              <div onClick="{{ m.elegir }}" style="display:flex;align-items:center;gap:12px;border:{{ m.borde }};background:{{ m.fondo }};border-radius:10px;padding:14px;cursor:pointer">
+                <span style="width:17px;height:17px;border-radius:50%;border:{{ m.radio }};background:#fff;flex:none"></span>
+                <div><div style="font:500 13px/1 'Work Sans'">{{ m.nombre }}</div><div style="font:400 11.5px/1.5 'Work Sans';color:rgba(46,36,56,.6);margin-top:4px">{{ m.detalle }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ pagaTransferencia }}" hint-placeholder-val="{{ true }}"><div style="margin-top:12px;padding:14px;border:1px dashed #B98A2E;border-radius:10px;font:400 11.5px/1.7 'Work Sans';color:rgba(46,36,56,.7)">Cuenta de ahorros · 000 000 0000 · a nombre de Érika M.<br><span style="color:#5B2A86;border-bottom:1px solid #B98A2E">Subir comprobante</span></div></sc-if>
+        </div>
+        <div style="margin:24px 16px 0;background:#F2ECF7;border-radius:10px;padding:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:500 15px/1 'Lora',serif;color:#3A1857">Resumen</span><span style="font:400 11.5px/1 'Work Sans';color:#5B2A86">{{ conteoTexto }}</span></div>
+          <sc-for list="{{ carrito }}" as="it" hint-placeholder-count="1">
+            <div style="display:flex;justify-content:space-between;font:400 12.5px/1.4 'Work Sans';color:rgba(46,36,56,.7);margin-top:13px"><span>{{ it.resumen }}</span><span>{{ it.lineaTexto }}</span></div>
+          </sc-for>
+          <div style="display:flex;justify-content:space-between;font:400 12.5px/1 'Work Sans';color:rgba(46,36,56,.7);margin-top:11px"><span>{{ entregaNombre }}</span><span>{{ entregaCosto }}</span></div>
+          <div style="border-top:1px dashed #B98A2E;margin:14px 0"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:500 15px/1 'Lora',serif;color:#3A1857">Total</span><span style="font:500 24px/1 'Lora',serif;color:#3A1857">{{ granTotalTexto }}</span></div>
+        </div>
+        <div style="height:22px"></div>
+      </div>
+      <div style="border-top:1px solid rgba(46,36,56,.08);padding:13px 16px 16px;flex:none"><button onClick="{{ confirmar }}" style="width:100%;border:0;background:#5B2A86;color:#fff;font:500 14px/1 'Work Sans';padding:17px 0;border-radius:999px;cursor:pointer" style-hover="background:#3A1857">Confirmar pedido · {{ granTotalTexto }}</button></div>
+    </div></sc-if>
+
+    <sc-if value="{{ enListo }}"><div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow-y:auto">
+      <div style="padding:44px 24px 0;text-align:center">
+        <div style="width:66px;height:66px;margin:0 auto;border-radius:50%;background:#F2ECF7;border:1px dashed #B98A2E;display:grid;place-items:center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5B2A86" stroke-width="1.6"><polyline points="5,13 10,18 19,7"></polyline></svg></div>
+        <div style="font:500 26px/1.3 'Lora',serif;margin-top:20px">¡Gracias, María!</div>
+        <p style="font:400 13.5px/1.7 'Work Sans';color:rgba(46,36,56,.68);margin:12px 0 0">Tu pedido <b style="color:#3A1857">#EH-1042</b> quedó registrado. Érika revisa el comprobante y te escribe por WhatsApp.</p>
+      </div>
+      <div style="margin:26px 18px 0;border:1px solid rgba(46,36,56,.1);border-radius:11px;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#FCFAFD;border-bottom:1px solid rgba(46,36,56,.07)"><span style="font:500 12.5px/1 'Work Sans'">Estado del pedido</span><span style="font:500 10px/1 'Work Sans';letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:4px;background:#fff;border:1px solid #C9B3DD;color:#5B2A86">Nuevo</span></div>
+        <div style="padding:16px">
+          <div style="display:flex;gap:12px"><span style="width:11px;height:11px;border-radius:50%;background:#5B2A86;flex:none;margin-top:3px"></span><div><div style="font:500 12.5px/1 'Work Sans'">Recibido</div><div style="font:400 11px/1.5 'Work Sans';color:rgba(46,36,56,.5);margin-top:4px">Hoy, 9:41</div></div></div>
+          <div style="border-left:1px dashed #C9B3DD;height:16px;margin-left:5px"></div>
+          <div style="display:flex;gap:12px"><span style="width:11px;height:11px;border-radius:50%;border:1px solid #C9B3DD;flex:none;margin-top:3px"></span><div style="font:500 12.5px/1 'Work Sans';color:rgba(46,36,56,.5)">Pago verificado</div></div>
+          <div style="border-left:1px dashed rgba(46,36,56,.15);height:16px;margin-left:5px"></div>
+          <div style="display:flex;gap:12px"><span style="width:11px;height:11px;border-radius:50%;border:1px solid rgba(46,36,56,.2);flex:none;margin-top:3px"></span><div style="font:500 12.5px/1 'Work Sans';color:rgba(46,36,56,.4)">Listo para retirar</div></div>
+        </div>
+      </div>
+      <div style="margin:18px 18px 0;padding:16px;background:#F2ECF7;border-radius:10px">
+        <div style="display:flex;justify-content:space-between;font:400 12.5px/1 'Work Sans';color:rgba(46,36,56,.7)"><span>{{ conteoTexto }}</span><span style="font-weight:500;color:#3A1857">{{ granTotalTexto }}</span></div>
+        <div style="font:400 11.5px/1.6 'Work Sans';color:rgba(46,36,56,.6);margin-top:9px">{{ entregaNombre }} · {{ entregaDetalle }}</div>
+      </div>
+      <div style="padding:22px 18px 34px;display:flex;flex-direction:column;gap:9px">
+        <button style="border:0;background:#5B2A86;color:#fff;font:500 13.5px/1 'Work Sans';padding:16px 0;border-radius:999px;cursor:pointer">Ver mis pedidos</button>
+        <button onClick="{{ reiniciar }}" style="background:#fff;border:1px solid #5B2A86;color:#5B2A86;font:500 13px/1 'Work Sans';padding:14px 0;border-radius:999px;cursor:pointer">Seguir comprando</button>
+      </div>
+    </div></sc-if>
+  </div>
+
+  <sc-if value="{{ mostrarPasos }}" hint-placeholder-val="{{ true }}"><div style="width:390px;display:flex;flex-wrap:wrap;gap:6px">
+    <sc-for list="{{ pasos }}" as="s" hint-placeholder-count="6">
+      <span onClick="{{ s.ir }}" style="font:500 10.5px/1 'Work Sans';padding:9px 12px;border-radius:999px;border:{{ s.borde }};background:{{ s.fondo }};color:{{ s.color }};cursor:pointer">{{ s.label }}</span>
+    </sc-for>
+  </div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:460,&quot;height&quot;:960},&quot;sesionInicial&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Sin cuenta&quot;,&quot;Con cuenta&quot;],&quot;default&quot;:&quot;Sin cuenta&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;mostrarPasos&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+const COP = n => "$" + n.toLocaleString("es-CO");
+
+const CATALOGO = [
+  { id: "blusa", nombre: "Blusa encaje Amanecer", precio: 72000, img: "img/blusa-encaje.png", categoria: "Mujer · Blusas", tallas: ["S", "M", "L"], disponible: true, unica: false,
+    descripcion: "Blusa en popelina de algodón con hombros de encaje cosidos a mano y frente con pliegue suelto. Cae fresca y no marca. Cada una toma cerca de seis horas de taller." },
+  { id: "camisa", nombre: "Camisa unisex Crudo", precio: 89000, img: "img/camisa-blanca.jpg", categoria: "Camisas unisex", tallas: ["S", "M", "L", "XL"], disponible: true, unica: false,
+    descripcion: "Camisa de algodón peinado con costura reforzada en hombros y bajo recto. Corte holgado, sirve para hombre y mujer. Se ajusta gratis en el taller." },
+  { id: "domingo", nombre: "Blusa Domingo", precio: 65000, img: "img/camiseta-crop.jpg", categoria: "Mujer · Blusas", tallas: ["S"], disponible: true, unica: true,
+    descripcion: "Blusa corta de manga doblada, cortada de un retazo de algodón que no se repite. Solo existe una y es talla S." },
+  { id: "negra", nombre: "Camiseta Esencial negra", precio: 58000, img: "img/camiseta-negra.jpg", categoria: "Hombre · Camisas", tallas: ["S", "M", "L"], disponible: false, unica: false,
+    descripcion: "Camiseta base en algodón teñido en negro, cuello redondo reforzado. Se agotó esta serie; entra otra en dos semanas." },
+  { id: "pantalon", nombre: "Pantalón de vestir Sastre", precio: 120000, img: "img/pantalones.jpg", categoria: "Hombre · Pantalones", tallas: ["28", "30", "32", "34"], disponible: true, unica: false,
+    descripcion: "Pantalón de vestir con pinzas, bolsillo francés y ruedo abierto para ajustar al largo que necesites. Se entrega con el ruedo hecho a tu medida." }
+];
+
+const ENTREGAS = [
+  { id: "taller", nombre: "Retiro en el taller", detalle: "Lun a sáb 9:00–17:00", costo: 0 },
+  { id: "delivery", nombre: "Delivery local", detalle: "Mismo día dentro de la ciudad", costo: 8000 },
+  { id: "punto", nombre: "Punto de encuentro", detalle: "Se acuerda por WhatsApp", costo: 0 }
+];
+
+const PAGOS = [
+  { id: "transferencia", nombre: "Transferencia bancaria", detalle: "Subes el comprobante y Érika confirma" },
+  { id: "efectivo", nombre: "Efectivo al retirar", detalle: "Pagas cuando recojas la pieza" }
+];
+
+const PASOS = [
+  { paso: "catalogo", label: "Catálogo" },
+  { paso: "producto", label: "Producto" },
+  { paso: "carrito", label: "Carrito" },
+  { paso: "puerta", label: "Sesión requerida" },
+  { paso: "login", label: "Cuenta" },
+  { paso: "checkout", label: "Pago" },
+  { paso: "listo", label: "Confirmado" }
+];
+
+class Component extends DCLogic {
+  state = { paso: "catalogo", pid: "blusa", talla: "M", carrito: [], entrada: false, entrega: "taller", pago: "transferencia" };
+
+  get logueada() {
+    return this.state.entrada || (this.props.sesionInicial ?? "Sin cuenta") === "Con cuenta";
+  }
+  get producto() {
+    return CATALOGO.find(p => p.id === this.state.pid) || CATALOGO[0];
+  }
+  ir(paso) { this.setState({ paso }); }
+
+  abrir(p) {
+    this.setState({ paso: "producto", pid: p.id, talla: p.tallas.includes(this.state.talla) ? this.state.talla : p.tallas[0] });
+  }
+  agregar() {
+    const p = this.producto, talla = this.state.talla;
+    const carrito = this.state.carrito.slice();
+    const i = carrito.findIndex(x => x.id === p.id && x.talla === talla);
+    if (i >= 0 && !p.unica) carrito[i] = Object.assign({}, carrito[i], { cantidad: carrito[i].cantidad + 1 });
+    else if (i < 0) carrito.push({ id: p.id, talla, cantidad: 1 });
+    this.setState({ carrito, paso: "carrito" });
+  }
+  cambiar(id, talla, delta) {
+    const carrito = this.state.carrito
+      .map(x => (x.id === id && x.talla === talla ? Object.assign({}, x, { cantidad: x.cantidad + delta }) : x))
+      .filter(x => x.cantidad > 0);
+    this.setState({ carrito });
+  }
+  quitar(id, talla) {
+    this.setState({ carrito: this.state.carrito.filter(x => !(x.id === id && x.talla === talla)) });
+  }
+
+  renderVals() {
+    const s = this.state, p = this.producto;
+    const badge = q => (!q.disponible ? { badge: "Agotado", badgeBg: "rgba(255,255,255,.92)", badgeFg: "rgba(46,36,56,.45)" }
+      : q.unica ? { badge: "Pieza única", badgeBg: "#B98A2E", badgeFg: "#fff" }
+      : { badge: "Disponible", badgeBg: "#fff", badgeFg: "#5B2A86" });
+
+    const carrito = s.carrito.map(x => {
+      const q = CATALOGO.find(c => c.id === x.id);
+      return {
+        id: x.id, talla: x.talla, cantidad: x.cantidad, nombre: q.nombre, img: q.img,
+        resumen: q.nombre + " · " + x.talla, lineaTexto: COP(q.precio * x.cantidad),
+        mas: () => (q.unica ? null : this.cambiar(x.id, x.talla, 1)),
+        menos: () => this.cambiar(x.id, x.talla, -1),
+        quitar: () => this.quitar(x.id, x.talla)
+      };
+    });
+    const subtotal = s.carrito.reduce((t, x) => t + CATALOGO.find(c => c.id === x.id).precio * x.cantidad, 0);
+    const piezas = s.carrito.reduce((t, x) => t + x.cantidad, 0);
+    const entrega = ENTREGAS.find(e => e.id === s.entrega);
+
+    const sel = (activo) => activo
+      ? { borde: "1.5px solid #5B2A86", fondo: "#F2ECF7", radio: "5px solid #5B2A86" }
+      : { borde: "1px solid rgba(46,36,56,.14)", fondo: "#fff", radio: "1px solid rgba(46,36,56,.28)" };
+
+    return {
+      productos: CATALOGO.map(q => Object.assign({}, q, badge(q), { precio: COP(q.precio), abrir: () => this.abrir(q) })),
+      actual: Object.assign({}, p, badge(p), { precio: COP(p.precio), agotado: !p.disponible }),
+      tallas: p.tallas.map(t => ({
+        label: t,
+        borde: t === s.talla ? "1.5px solid #5B2A86" : "1px solid rgba(46,36,56,.16)",
+        fondo: t === s.talla ? "#F2ECF7" : "#fff",
+        elegir: () => this.setState({ talla: t })
+      })),
+      carrito,
+      carritoVacio: carrito.length === 0,
+      carritoConItems: carrito.length > 0,
+      conteo: piezas,
+      conteoTexto: piezas === 1 ? "1 pieza" : piezas + " piezas",
+      totalTexto: COP(subtotal),
+      granTotalTexto: COP(subtotal + entrega.costo),
+      entregas: ENTREGAS.map(e => Object.assign({}, sel(e.id === s.entrega), {
+        nombre: e.nombre, detalle: e.detalle, costoTexto: e.costo ? COP(e.costo) : "Gratis",
+        elegir: () => this.setState({ entrega: e.id })
+      })),
+      pagos: PAGOS.map(m => Object.assign({}, sel(m.id === s.pago), {
+        nombre: m.nombre, detalle: m.detalle, elegir: () => this.setState({ pago: m.id })
+      })),
+      pagaTransferencia: s.pago === "transferencia",
+      entregaNombre: entrega.nombre,
+      entregaDetalle: entrega.detalle,
+      entregaCosto: entrega.costo ? COP(entrega.costo) : "Gratis",
+      enCatalogo: s.paso === "catalogo",
+      enProducto: s.paso === "producto",
+      enCarrito: s.paso === "carrito",
+      enPuerta: s.paso === "puerta",
+      enLogin: s.paso === "login",
+      enCheckout: s.paso === "checkout",
+      enListo: s.paso === "listo",
+      sinSesion: !this.logueada,
+      mostrarPasos: this.props.mostrarPasos ?? true,
+      pasos: PASOS.map(x => ({
+        label: x.label,
+        borde: x.paso === s.paso ? "1px solid #5B2A86" : "1px solid rgba(46,36,56,.14)",
+        fondo: x.paso === s.paso ? "#5B2A86" : "#fff",
+        color: x.paso === s.paso ? "#fff" : "rgba(46,36,56,.6)",
+        ir: () => this.ir(x.paso)
+      })),
+      verCatalogo: () => this.ir("catalogo"),
+      verCarrito: () => this.ir("carrito"),
+      verLogin: () => this.ir("login"),
+      irAPagar: () => this.ir(this.logueada ? "checkout" : "puerta"),
+      entrar: () => this.setState({ entrada: true, paso: "checkout" }),
+      agregar: () => this.agregar(),
+      confirmar: () => this.ir("listo"),
+      reiniciar: () => this.setState({ paso: "catalogo", carrito: [], entrada: false, pid: "blusa", talla: "M", entrega: "taller", pago: "transferencia" })
+    };
+  }
+}
+</script>
+</body>
+</html>

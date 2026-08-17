@@ -4,7 +4,8 @@ Aplicativo web para **Erika's Homemade**: tienda online de ropa y bisutería hec
 **servicios de costura/reparación con agenda de citas**. La clienta (Érika) administra todo desde
 un **panel administrativo**.
 
-> Estado actual: **Fase 0 — planeación y diseño**. No hay código de la aplicación todavía.
+> Estado actual: **Fase 0 completada — diseño hi-fi recibido** (Claude Design, en `docs/design/`).
+> Listo para **Fase 1 (Fundación)**. Aún no hay código de la aplicación.
 > El plan completo vive en [`docs/plan-erikas-homemade.md`](docs/plan-erikas-homemade.md).
 
 ## Decisiones fijas (respetar siempre)
@@ -18,6 +19,9 @@ un **panel administrativo**.
 - **Panel administrativo** = centro de control de Érika: productos (crear/editar/deshabilitar/
   eliminar + stock), servicios, citas, ventas, dashboard.
 - **Mobile-first.**
+- **Moneda: pesos colombianos (COP)**, formato `$72.000` (sin decimales, punto de miles); zona
+  horaria `America/Bogota`. Fechas en español.
+- **Registro:** correo + contraseña (obligatorio) + Google opcional. *No* "login con WhatsApp".
 
 ## Dirección de diseño (para prompts de Claude Design)
 
@@ -49,6 +53,9 @@ un **panel administrativo**.
   datos, roadmap, dirección de diseño y el brief/prompt base — secciones 11 y 12).
 - Prompt para diseño: `docs/prompt-claude-design.md`.
 - Stack tecnológico: `docs/stack-tecnologico.md`.
+- **Diseño hi-fi de Claude Design en `docs/design/`**: `README.md` (brief de desarrollo),
+  `PANTALLAS.md` (26 pantallas móvil/escritorio/admin), `DATOS.md` (esquema BD + RLS + Server
+  Actions + Zod + seed) y mockups `.dc.html` (referencia visual, **no** copiar como código).
 - Página de handoff visual (artifact) para compartir con diseño.
 
 ## Git
