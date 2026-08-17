@@ -36,4 +36,24 @@
   .eyebrow {
     @apply font-body text-[10px] font-semibold uppercase tracking-[0.16em];
   }
+
+  /* Saltar al contenido: visible solo al enfocarse con teclado. */
+  .skip-link {
+    @apply absolute left-3 top-3 z-[100] -translate-y-16 rounded-pill bg-morado px-4 py-2 text-[13px] font-medium text-blanco transition-transform;
+  }
+  .skip-link:focus {
+    @apply translate-y-0;
+  }
+}
+
+/* Respeto por quienes prefieren menos movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

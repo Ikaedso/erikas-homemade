@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Stitch } from "@/components/brand/stitch";
-import { formatCOP, formatFecha } from "@/lib/format";
+import { formatCOP } from "@/lib/format";
 import { getResumen, getUltimosPedidos } from "@/lib/data/admin";
 
 export const metadata: Metadata = { title: "Panel" };

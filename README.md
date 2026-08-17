@@ -48,6 +48,18 @@ supabase/            Migraciones y seed
 docs/                Plan, stack y handoff de diseño (docs/design/)
 ```
 
+## Pruebas y CI
+
+```bash
+pnpm typecheck   # TypeScript
+pnpm lint        # ESLint (next)
+pnpm test        # Vitest (helpers: formatCOP, cupos de citas…)
+pnpm test:e2e    # Playwright (flujo del home; arranca el dev server solo)
+pnpm build       # build de producción
+```
+
+CI (GitHub Actions, `.github/workflows/ci.yml`) corre typecheck + lint + tests + build en cada PR a `main`. Accesibilidad: enlace "saltar al contenido", foco visible y respeto a `prefers-reduced-motion`. SEO: `sitemap.xml` y `robots.txt` generados.
+
 ## Convenciones
 
 - **El blanco domina**; morado/dorado solo en acentos. Tokens en `tailwind.config.ts`.
