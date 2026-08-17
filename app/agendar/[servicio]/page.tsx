@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { AgendarCita } from "@/components/citas/agendar-cita";
+import { requireUser } from "@/lib/auth/require-user";
 import {
   getDiasBloqueados,
   getHorario,
@@ -24,6 +25,7 @@ export default async function AgendarPage({
   params: Promise<{ servicio: string }>;
 }) {
   const { servicio: slug } = await params;
+  await requireUser(`/agendar/${slug}`);
   const servicio = await getServicioPorSlug(slug);
   if (!servicio) notFound();
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { formatCOP, formatFecha, formatHora } from "@/lib/format";
 import { getMisPedidos, type EstadoPedido } from "@/lib/data/pedidos";
 import { getMisCitas, type EstadoCita } from "@/lib/data/citas";
+import { requireUser } from "@/lib/auth/require-user";
 
 export const metadata: Metadata = { title: "Mi cuenta" };
 
@@ -24,6 +25,7 @@ const ESTADO_CITA: Record<EstadoCita, string> = {
 };
 
 export default async function CuentaPage() {
+  await requireUser("/cuenta");
   const [pedidos, citas] = await Promise.all([getMisPedidos(), getMisCitas()]);
 
   return (
