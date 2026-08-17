@@ -39,9 +39,23 @@ export async function eliminarUsuario(userId: string): Promise<Res> {
       error: "Falta configurar SUPABASE_SERVICE_ROLE_KEY para poder eliminar usuarios.",
     };
   }
+
   const admin = createAdminClient();
+
+  // Las FK de pedidos/citas apuntan a `perfiles` sin ON DELETE CASCADE, así que
+  // primero borramos los datos dependientes del cliente (con service role, sin
+  // RLS). items_pedido cae en cascada al borrar sus pedidos.
+  const { error: eCitas } = await admin.from("citas").delete().eq("cliente_id", userId);
+  if (eCitas) return { ok: false, error: `No se pudieron borrar las citas: ${eCitas.message}` };
+
+  const { error: ePedidos } = await admin.from("pedidos").delete().eq("cliente_id", userId);
+  if (ePedidos) {
+    return { ok: false, error: `No se pudieron borrar los pedidos: ${ePedidos.message}` };
+  }
+
   const { error } = await admin.auth.admin.deleteUser(userId);
-  if (error) return { ok: false, error: "No se pudo eliminar el usuario." };
+  if (error) return { ok: false, error: `No se pudo eliminar el usuario: ${error.message}` };
+
   revalidatePath("/admin/usuarios");
   return { ok: true };
 }
