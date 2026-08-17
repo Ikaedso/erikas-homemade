@@ -46,6 +46,13 @@ export async function getSubcategorias(categoriaId: string): Promise<Subcategori
   return data ?? [];
 }
 
+export async function getSubcategoriasTodas(): Promise<Subcategoria[]> {
+  if (!haySupabase()) return [];
+  const supabase = await createClient();
+  const { data } = await supabase.from("subcategorias").select("*").order("orden");
+  return data ?? [];
+}
+
 export async function getProductosPorCategoria(categoriaId: string): Promise<ProductoPublico[]> {
   if (!haySupabase()) return [];
   const supabase = await createClient();
