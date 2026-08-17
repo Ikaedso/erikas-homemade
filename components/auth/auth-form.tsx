@@ -159,10 +159,17 @@ function RegistroForm({ next, router }: { next: string; router: Router }) {
     });
     if (error) {
       setErrorGeneral(
-        error.message.includes("already")
-          ? "Ese correo ya tiene cuenta. Entra en su lugar."
+        error.message.toLowerCase().includes("already") ||
+          error.message.toLowerCase().includes("registered")
+          ? "Ese correo ya tiene una cuenta. Entra en su lugar."
           : "No pudimos crear la cuenta. Intenta de nuevo.",
       );
+      return;
+    }
+    // Supabase oculta los correos existentes: devuelve un usuario SIN identities
+    // y sin sesión. Eso significa que la cuenta ya existe.
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      setErrorGeneral("Ese correo ya tiene una cuenta. Entra en su lugar.");
       return;
     }
     if (data.session) {
