@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Stitch } from "@/components/brand/stitch";
 import { Reveal } from "@/components/anim/reveal";
 import { CategoryCard, type MotivoCategoria } from "@/components/tienda/category-card";
+import { HeroVisual } from "@/components/tienda/hero-visual";
 import { ProductCard } from "@/components/tienda/product-card";
 import {
   getCategorias,
@@ -49,22 +50,28 @@ export default async function HomePage({
     <>
       {/* Hero */}
       <section className="bg-lavanda">
-        <div className="mx-auto max-w-[1440px] px-4 py-16 lg:px-14 lg:py-24">
-          <p className="eyebrow text-dorado">Serie corta · hecho a mano</p>
-          <h1 className="mt-3 max-w-[16ch] font-display text-[32px] leading-[1.14] text-moradoHondo lg:text-[56px]">
-            Cosido a mano, hecho a tu medida
-          </h1>
-          <p className="mt-4 max-w-[52ch] text-[14px] leading-relaxed text-tinta/72 lg:text-[15px]">
-            Ropa y bisutería artesanal en series de pocas unidades, y un taller de costura que
-            arregla, ajusta y confecciona a tu medida —con cita.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link href="/mujer">Ver el catálogo</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/servicios">Agendar una cita</Link>
-            </Button>
+        <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-16 lg:grid-cols-2 lg:gap-14 lg:px-14 lg:py-24">
+          <div>
+            <p className="eyebrow text-dorado">Serie corta · hecho a mano</p>
+            <h1 className="mt-3 max-w-[16ch] font-display text-[32px] leading-[1.14] text-moradoHondo lg:text-[56px]">
+              Cosido a mano, hecho a tu medida
+            </h1>
+            <p className="mt-4 max-w-[52ch] text-[14px] leading-relaxed text-tinta/72 lg:text-[15px]">
+              Ropa y bisutería artesanal en series de pocas unidades, y un taller de costura que
+              arregla, ajusta y confecciona a tu medida —con cita.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button asChild size="lg">
+                <Link href="/mujer">Ver el catálogo</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/servicios">Agendar una cita</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="hidden lg:block">
+            <HeroVisual />
           </div>
         </div>
       </section>
