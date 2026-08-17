@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Anillo de foco de marca (lavanda) */
+    --ring-marca: #f2ecf7;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-blanco font-body text-tinta antialiased;
+  }
+
+  /* Foco visible y consistente en todo control interactivo */
+  :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ring-marca);
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  /* La "puntada": costura dorada que separa secciones y bordea avisos. */
+  .puntada {
+    border-top: 1px dashed #b98a2e;
+  }
+}
+
+@layer utilities {
+  /* Eyebrow: etiqueta pequeña en mayúsculas con tracking. */
+  .eyebrow {
+    @apply font-body text-[10px] font-semibold uppercase tracking-[0.16em];
+  }
+}
