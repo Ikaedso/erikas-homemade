@@ -1,0 +1,177 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { esAdmin } from "@/lib/auth/require-admin";
+import type { EstadoPedido } from "@/lib/data/pedidos";
+import type { EstadoCita } from "@/lib/data/citas";
+
+export type ActionResult = { ok: true } | { ok: false; error: string };
+const DENEGADO: ActionResult = { ok: false, error: "No autorizado." };
+const GENERICO: ActionResult = { ok: false, error: "No se pudo guardar. Intenta de nuevo." };
+
+const ACENTOS: Record<string, string> = {
+  á: "a", é: "e", í: "i", ó: "o", ú: "u", ü: "u", ñ: "n",
+};
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[áéíóúüñ]/g, (c) => ACENTOS[c] ?? c)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+// ---------- Pedidos ----------
+export async function setEstadoPedido(
+  pedidoId: string,
+  estado: EstadoPedido,
+): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  const supabase = await createClient();
+  const { error } = await supabase.from("pedidos").update({ estado }).eq("id", pedidoId);
+  if (error) return GENERICO;
+  revalidatePath("/admin/pedidos");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function getComprobanteUrl(path: string): Promise<string | null> {
+  if (!(await esAdmin())) return null;
+  const supabase = await createClient();
+  const { data } = await supabase.storage.from("comprobantes").createSignedUrl(path, 60 * 10);
+  return data?.signedUrl ?? null;
+}
+
+// ---------- Citas ----------
+export async function setEstadoCita(citaId: string, estado: EstadoCita): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  const supabase = await createClient();
+  const { error } = await supabase.from("citas").update({ estado }).eq("id", citaId);
+  if (error) return GENERICO;
+  revalidatePath("/admin/citas");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+// ---------- Servicios ----------
+export async function setServicioActivo(id: string, activo: boolean): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  const supabase = await createClient();
+  const { error } = await supabase.from("servicios").update({ activo }).eq("id", id);
+  if (error) return GENERICO;
+  revalidatePath("/admin/servicios");
+  return { ok: true };
+}
+
+// ---------- Productos ----------
+export async function setPublicado(productoId: string, publicado: boolean): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  const supabase = await createClient();
+  const { error } = await supabase.from("productos").update({ publicado }).eq("id", productoId);
+  if (error) return GENERICO;
+  revalidatePath("/admin/productos");
+  return { ok: true };
+}
+
+export type ProductoInput = {
+  nombre: string;
+  precio_cop: number;
+  categoria_id: string;
+  subcategoria_id: string | null;
+  descripcion: string;
+  es_pieza_unica: boolean;
+  aviso_stock_bajo: number;
+};
+
+export async function crearProducto(
+  input: ProductoInput,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  if (!(await esAdmin())) return { ok: false, error: "No autorizado." };
+  if (!input.nombre.trim() || input.precio_cop <= 0 || !input.categoria_id) {
+    return { ok: false, error: "Completa nombre, precio y categoría." };
+  }
+  const supabase = await createClient();
+  const slug = `${slugify(input.nombre)}-${Date.now().toString(36).slice(-4)}`;
+  const { data, error } = await supabase
+    .from("productos")
+    .insert({
+      slug,
+      nombre: input.nombre.trim(),
+      precio_cop: input.precio_cop,
+      categoria_id: input.categoria_id,
+      subcategoria_id: input.subcategoria_id,
+      descripcion: input.descripcion || null,
+      es_pieza_unica: input.es_pieza_unica,
+      aviso_stock_bajo: input.aviso_stock_bajo,
+      publicado: false,
+    })
+    .select("id")
+    .single();
+  if (error) return { ok: false, error: "No se pudo crear el producto." };
+  revalidatePath("/admin/productos");
+  return { ok: true, id: data.id };
+}
+
+export async function actualizarProducto(
+  id: string,
+  input: ProductoInput,
+): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("productos")
+    .update({
+      nombre: input.nombre.trim(),
+      precio_cop: input.precio_cop,
+      categoria_id: input.categoria_id,
+      subcategoria_id: input.subcategoria_id,
+      descripcion: input.descripcion || null,
+      es_pieza_unica: input.es_pieza_unica,
+      aviso_stock_bajo: input.aviso_stock_bajo,
+    })
+    .eq("id", id);
+  if (error) return GENERICO;
+  revalidatePath("/admin/productos");
+  revalidatePath(`/admin/productos/${id}`);
+  return { ok: true };
+}
+
+// ---------- Variantes (stock) ----------
+export async function setStockVariante(varianteId: string, stock: number): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  if (stock < 0 || !Number.isInteger(stock)) return { ok: false, error: "Stock no válido." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("variantes").update({ stock }).eq("id", varianteId);
+  if (error) return GENERICO;
+  return { ok: true };
+}
+
+export async function agregarVariante(
+  productoId: string,
+  talla: string,
+  color: string,
+  stock: number,
+): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  if (!talla.trim() || !color.trim()) return { ok: false, error: "Talla y color son obligatorios." };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("variantes")
+    .insert({ producto_id: productoId, talla: talla.trim(), color: color.trim(), stock });
+  if (error) return { ok: false, error: "Esa combinación de talla y color ya existe." };
+  revalidatePath(`/admin/productos/${productoId}`);
+  return { ok: true };
+}
+
+export async function eliminarVariante(
+  varianteId: string,
+  productoId: string,
+): Promise<ActionResult> {
+  if (!(await esAdmin())) return DENEGADO;
+  const supabase = await createClient();
+  const { error } = await supabase.from("variantes").delete().eq("id", varianteId);
+  if (error) return GENERICO;
+  revalidatePath(`/admin/productos/${productoId}`);
+  return { ok: true };
+}
